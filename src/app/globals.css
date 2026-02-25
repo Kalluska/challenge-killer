@@ -24,3 +24,45 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* --- Subtle animated glow background --- */
+.glow-blob {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.18;
+  transform: translate3d(0, 0, 0);
+  animation: glowFloat 14s ease-in-out infinite;
+}
+
+.glow-blob-a {
+  left: -220px;
+  top: -260px;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85), rgba(255,255,255,0));
+  animation-duration: 16s;
+}
+
+.glow-blob-b {
+  right: -260px;
+  bottom: -300px;
+  background: radial-gradient(circle at 60% 60%, rgba(255,255,255,0.55), rgba(255,255,255,0));
+  animation-duration: 19s;
+  animation-direction: reverse;
+}
+
+@keyframes glowFloat {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  50%  { transform: translate(60px, 40px) scale(1.08); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+/* --- Smooth page transitions --- */
+.page-fade {
+  animation: pageFadeIn 220ms ease-out;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0px); }
+}
