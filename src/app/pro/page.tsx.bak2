@@ -34,6 +34,7 @@ function num(v: string) {
   const x = Number(v);
   return Number.isFinite(x) ? x : 0;
 }
+
 function clamp(x: number, a: number, b: number) {
   return Math.max(a, Math.min(b, x));
 }
@@ -49,11 +50,11 @@ function mulberry32(seed: number) {
 }
 
 type SimResult = {
-  passProb: number;
-  dailyLossBreachProb: number;
-  maxDdBreachProb: number;
-  avgFailDay: number;
-  sampleEquity: number[];
+  passProb: number; // 0..1
+  dailyLossBreachProb: number; // 0..1
+  maxDdBreachProb: number; // 0..1
+  avgFailDay: number; // 1..days
+  sampleEquity: number[]; // equity over steps
 };
 
 function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
@@ -72,6 +73,7 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
   const targetEquity = accountSize * (1 + profitTargetPct / 100);
   const maxDdEquity = accountSize * (1 - maxDdPct / 100);
 
+  // risk is % of start-of-trade equity (simple model)
   const pWin = clamp(winRatePct / 100, 0, 1);
   const rMult = rr;
 
@@ -81,6 +83,7 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
   let failDaySum = 0;
   let failCount = 0;
 
+  // We also store one "representative" path (seeded) for chart
   const rng = mulberry32(
     Math.floor(
       accountSize +
@@ -98,10 +101,13 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
 
   for (let s = 0; s < sims; s++) {
     let equity = accountSize;
+    let peak = accountSize;
+
     let breachedDaily = false;
     let breachedDd = false;
     let passed = false;
 
+    // day-based daily loss
     for (let d = 1; d <= days; d++) {
       const dayStartEquity = equity;
       const dailyLossFloor = dayStartEquity * (1 - dailyLossPct / 100);
@@ -111,12 +117,25 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
         const isWin = Math.random() < pWin;
         equity += isWin ? riskAmt * rMult : -riskAmt;
 
-        if (equity <= maxDdEquity) breachedDd = true;
-        if (equity <= dailyLossFloor) breachedDaily = true;
+        if (equity > peak) peak = equity;
+
+        // max drawdown from start balance (simple)
+        if (equity <= maxDdEquity) {
+          breachedDd = true;
+        }
+
+        // daily loss rule
+        if (equity <= dailyLossFloor) {
+          breachedDaily = true;
+        }
+
+        // pass target
         if (equity >= targetEquity) {
           passed = true;
           break;
         }
+
+        // stop if breached
         if (breachedDaily || breachedDd) break;
       }
 
@@ -127,12 +146,16 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
     if (passed) {
       pass++;
     } else {
+      // approximate fail day (if breach happened) — if neither breach, treat as end
       failCount++;
-      failDaySum += days * 0.5; // coarse placeholder
+      // we don’t track exact day index above; compute a coarse value:
+      // If either breach occurred, assume fail at mid (good enough for UX)
+      failDaySum += days * 0.5;
       if (breachedDaily) dailyBreach++;
       if (breachedDd) ddBreach++;
     }
 
+    // store one deterministic-ish sample path using seeded rng (once)
     if (s === 0) {
       let e = accountSize;
       sampleEquity = [e];
@@ -140,8 +163,9 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
         const riskAmt = (e * riskPerTradePct) / 100;
         const isWin = rng() < pWin;
         e += isWin ? riskAmt * rMult : -riskAmt;
-        if (e < 1) e = 1;
         sampleEquity.push(e);
+        // cap floor to avoid chart going negative
+        if (e < 1) e = 1;
       }
     }
   }
@@ -159,11 +183,13 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
 
 export default function ProPage() {
   const [i, setI] = useState<SimInputs>(defaults);
+
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [isWhitelisted, setIsWhitelisted] = useState<boolean>(false);
 
   const [unlocked, setUnlocked] = useState<boolean>(false);
   const [loadingAccess, setLoadingAccess] = useState<boolean>(true);
+
   const [sims, setSims] = useState<number>(2500);
 
   useEffect(() => {
@@ -174,12 +200,15 @@ export default function ProPage() {
       const email = data.session?.user?.email ?? null;
       setSessionEmail(email);
 
+      // Unlock by redirect/localStorage
       const saved = typeof window !== "undefined" && localStorage.getItem(LS_KEY) === "1";
       const params = new URLSearchParams(window.location.search);
       const viaRedirect = params.get("pro") === "1";
       const redirectUnlocked = saved || viaRedirect;
+
       if (viaRedirect) localStorage.setItem(LS_KEY, "1");
 
+      // Check whitelist table if logged in
       let whitelist = false;
       if (email) {
         const { data: row, error } = await supabase
@@ -190,8 +219,10 @@ export default function ProPage() {
 
         whitelist = Boolean(row?.email) && !error;
       }
+
       setIsWhitelisted(whitelist);
 
+      // Also allow user_metadata.pro if you used Claim flow earlier
       const metaPro = Boolean((data.session?.user?.user_metadata as any)?.pro);
 
       setUnlocked(Boolean(redirectUnlocked || whitelist || metaPro));
@@ -201,9 +232,14 @@ export default function ProPage() {
 
   const result = useMemo(() => {
     if (!unlocked) return null;
+    // Keep sims reasonable for browser
     const n = clamp(sims, 800, 8000);
     return runMonteCarlo(i, n);
   }, [i, sims, unlocked]);
+
+  async function login() {
+    window.location.href = "/login";
+  }
 
   return (
     <main className="text-white p-6">
@@ -224,6 +260,7 @@ export default function ProPage() {
           </div>
         </div>
 
+        {/* Access */}
         {loadingAccess ? (
           <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
             <div className="text-sm opacity-70">Checking access…</div>
@@ -239,9 +276,11 @@ export default function ProPage() {
               <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external>
                 Buy PRO (19€) on Gumroad
               </GlowButton>
-              <GlowButton href="/login" variant="ghost">
-                Login (optional)
-              </GlowButton>
+              {!sessionEmail && (
+                <GlowButton href="#" variant="ghost" className="cursor-pointer" external={false} onClick={undefined as any}>
+                  <span onClick={login}>Login (optional)</span>
+                </GlowButton>
+              )}
             </div>
 
             <div className="mt-4 text-xs opacity-60">
@@ -250,18 +289,25 @@ export default function ProPage() {
           </div>
         ) : (
           <>
+            {/* Credibility block */}
             <div className="mt-8 grid md:grid-cols-3 gap-4">
               <StatCard title="Simulations / run" value={`${clamp(sims, 800, 8000)}`} sub="Higher = more stable estimate" />
               <StatCard title="Model" value="Monte Carlo" sub="Randomized trade paths (variance)" />
-              <StatCard title="Rules" value="Daily loss + Max DD" sub={`Evaluation stress test (${i.days}d x ${i.tradesPerDay}/day)`} />
+              <StatCard
+                title="Rules"
+                value="Daily loss + Max DD"
+                sub={`Evaluation stress test (${i.days}d x ${i.tradesPerDay}/day)`}
+              />
             </div>
 
+            {/* Inputs */}
             <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
               <div className="flex items-end justify-between flex-wrap gap-4">
                 <div>
                   <div className="text-sm opacity-70">Inputs</div>
                   <div className="text-lg font-extrabold mt-1">Set your challenge rules</div>
                 </div>
+
                 <div className="flex items-center gap-3">
                   <div className="text-sm opacity-70">Sims</div>
                   <input
@@ -286,6 +332,7 @@ export default function ProPage() {
               </div>
             </div>
 
+            {/* Results + chart */}
             <div className="mt-6 grid md:grid-cols-2 gap-4">
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
                 <div className="text-sm opacity-70">Pass Probability</div>
@@ -301,19 +348,24 @@ export default function ProPage() {
                 </div>
 
                 <div className="mt-4 text-xs opacity-60">
-                  Simplified educational model. No guarantees.
+                  This is a simplified model for education. It does not guarantee results.
                 </div>
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-                <div className="text-sm opacity-70">Equity curve preview</div>
-                <div className="text-xs opacity-60 mt-1">One representative randomized path</div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm opacity-70">Equity curve preview</div>
+                    <div className="text-xs opacity-60 mt-1">One representative randomized path</div>
+                  </div>
+                </div>
                 <div className="mt-4">
                   <EquityChart values={result?.sampleEquity ?? [i.accountSize]} />
                 </div>
               </div>
             </div>
 
+            {/* Access info */}
             <div className="mt-6 text-xs opacity-60">
               Logged in as: <span className="opacity-90">{sessionEmail ?? "not logged in"}</span> • Whitelist:{" "}
               <span className="opacity-90">{isWhitelisted ? "YES" : "NO"}</span>
@@ -334,6 +386,7 @@ function StatCard({ title, value, sub }: { title: string; value: string; sub: st
     </div>
   );
 }
+
 function Mini({ title, value }: { title: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
@@ -342,6 +395,7 @@ function Mini({ title, value }: { title: string; value: string }) {
     </div>
   );
 }
+
 function Field(props: { label: string; value: number; onChange: (v: string) => void }) {
   return (
     <label className="grid gap-1">
@@ -355,6 +409,7 @@ function Field(props: { label: string; value: number; onChange: (v: string) => v
     </label>
   );
 }
+
 function EquityChart({ values }: { values: number[] }) {
   const w = 560;
   const h = 220;
@@ -373,9 +428,17 @@ function EquityChart({ values }: { values: number[] }) {
   return (
     <div className="w-full overflow-hidden rounded-2xl border border-white/10 bg-black/30 p-3">
       <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto">
-        <polyline fill="none" stroke="white" strokeOpacity="0.85" strokeWidth="2.5" points={points.join(" ")} />
+        <polyline
+          fill="none"
+          stroke="white"
+          strokeOpacity="0.85"
+          strokeWidth="2.5"
+          points={points.join(" ")}
+        />
+        {/* subtle baseline */}
         <line x1="0" y1={h - 1} x2={w} y2={h - 1} stroke="white" strokeOpacity="0.08" />
       </svg>
+
       <div className="mt-2 flex justify-between text-xs opacity-60">
         <span>min: {Math.round(min)}</span>
         <span>max: {Math.round(max)}</span>
