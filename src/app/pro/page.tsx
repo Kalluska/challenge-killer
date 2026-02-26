@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import GlowButton from "@/components/GlowButton";
 import { supabase } from "@/lib/supabase";
 
@@ -530,11 +530,22 @@ function EquityChart({ values }: { values: number[] }) {
 
   const polyPoints = points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
 
-  // Hover state
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
+  // Smooth: throttle state updates to animation frames
+  const rafRef = useRef<number | null>(null);
+  const pendingIdxRef = useRef<number | null>(null);
+
+  function setIdxSmooth(idx: number) {
+    pendingIdxRef.current = idx;
+    if (rafRef.current != null) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      if (pendingIdxRef.current != null) setHoverIdx(pendingIdxRef.current);
+    });
+  }
+
   function idxFromClientX(clientX: number, rect: DOMRect) {
-    // Convert clientX into SVG viewBox space
     const x = ((clientX - rect.left) / rect.width) * w;
     const t = (x - pad) / (w - pad * 2);
     const idx = Math.round(t * (values.length - 1));
@@ -543,19 +554,39 @@ function EquityChart({ values }: { values: number[] }) {
 
   const hoverPoint = hoverIdx === null ? null : points[hoverIdx];
 
+  // Tooltip positioning: clamp inside container + flip if near top
+  const xPctRaw = hoverPoint ? (hoverPoint.x / w) * 100 : 50;
+  const yPctRaw = hoverPoint ? (hoverPoint.y / h) * 100 : 50;
+  const xPct = Math.max(6, Math.min(94, xPctRaw));
+  const placeBelow = yPctRaw < 18; // if dot is near top, show tooltip below
+
   return (
     <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black/30 p-3">
       <svg
         viewBox={`0 0 ${w} ${h}`}
-        className="w-full h-auto"
+        className="w-full h-auto touch-none"
         onMouseMove={(e) => {
           const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
           const idx = idxFromClientX(e.clientX, rect);
-          setHoverIdx(idx);
+          setIdxSmooth(idx);
         }}
         onMouseLeave={() => setHoverIdx(null)}
+        onTouchStart={(e) => {
+          const t = e.touches?.[0];
+          if (!t) return;
+          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+          const idx = idxFromClientX(t.clientX, rect);
+          setIdxSmooth(idx);
+        }}
+        onTouchMove={(e) => {
+          const t = e.touches?.[0];
+          if (!t) return;
+          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+          const idx = idxFromClientX(t.clientX, rect);
+          setIdxSmooth(idx);
+        }}
+        onTouchEnd={() => setHoverIdx(null)}
       >
-        {/* line */}
         <polyline
           fill="none"
           stroke="white"
@@ -564,10 +595,8 @@ function EquityChart({ values }: { values: number[] }) {
           points={polyPoints}
         />
 
-        {/* baseline */}
         <line x1="0" y1={h - 1} x2={w} y2={h - 1} stroke="white" strokeOpacity="0.08" />
 
-        {/* hover dot + vertical guide */}
         {hoverPoint && (
           <g>
             <line
@@ -578,32 +607,21 @@ function EquityChart({ values }: { values: number[] }) {
               stroke="white"
               strokeOpacity="0.12"
             />
-            <circle
-              cx={hoverPoint.x}
-              cy={hoverPoint.y}
-              r="4.5"
-              fill="white"
-              fillOpacity="0.9"
-            />
-            <circle
-              cx={hoverPoint.x}
-              cy={hoverPoint.y}
-              r="10"
-              fill="white"
-              fillOpacity="0.06"
-            />
+            <circle cx={hoverPoint.x} cy={hoverPoint.y} r="4.5" fill="white" fillOpacity="0.92" />
+            <circle cx={hoverPoint.x} cy={hoverPoint.y} r="10" fill="white" fillOpacity="0.07" />
           </g>
         )}
       </svg>
 
-      {/* tooltip */}
       {hoverPoint && (
         <div
-          className="pointer-events-none absolute z-10 rounded-xl border border-white/10 bg-black/80 px-3 py-2 text-xs backdrop-blur-xl"
+          className="pointer-events-none absolute z-10 rounded-xl border border-white/10 bg-black/85 px-3 py-2 text-xs backdrop-blur-xl"
           style={{
-            left: `${(hoverPoint.x / w) * 100}%`,
-            top: `${Math.max(6, (hoverPoint.y / h) * 100 - 12)}%`,
-            transform: "translate(-50%, -100%)",
+            left: `${xPct}%`,
+            top: placeBelow ? `${Math.min(92, yPctRaw + 6)}%` : `${Math.max(8, yPctRaw - 6)}%`,
+            transform: placeBelow ? "translate(-50%, 0%)" : "translate(-50%, -100%)",
+            maxWidth: "240px",
+            whiteSpace: "nowrap",
           }}
         >
           <div className="opacity-70">Step {hoverIdx! + 1}</div>
