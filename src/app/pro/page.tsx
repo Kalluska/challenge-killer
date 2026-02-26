@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import GlowButton from "@/components/GlowButton";
 import { supabase } from "@/lib/supabase";
 
