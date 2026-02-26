@@ -34,8 +34,8 @@ export default function Home() {
                 Run Free Pass Estimate
               </GlowButton>
 
-              <GlowButton href="/pro" variant="ghost">
-                Unlock PRO (19€)
+              <GlowButton href="/login" variant="ghost">
+                Login to PRO
               </GlowButton>
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function Home() {
               Run Free Estimate
             </GlowButton>
             <GlowButton href="/pro" variant="ghost">
-              Unlock PRO (19€)
+              Login to PRO
             </GlowButton>
           </div>
         </div>
