@@ -38,6 +38,21 @@ function clamp(x: number, a: number, b: number) {
   return Math.max(a, Math.min(b, x));
 }
 
+function cleanNumberInput(raw: string) {
+  let s = raw.replace(/[^0-9.]/g, "");
+  const firstDot = s.indexOf(".");
+  if (firstDot !== -1) {
+    s = s.slice(0, firstDot + 1) + s.slice(firstDot + 1).replace(/\./g, "");
+  }
+  if (s === "") return "";
+  const parts = s.split(".");
+  let intPart = parts[0] ?? "";
+  const decPart = parts[1];
+  intPart = intPart.replace(/^0+(?=\d)/, "");
+  if (intPart === "") intPart = "0";
+  return decPart !== undefined ? `${intPart}.${decPart}` : intPart;
+}
+
 /** Fast seeded RNG so chart doesn't jitter every render */
 function mulberry32(seed: number) {
   return function () {
@@ -347,9 +362,13 @@ function Field(props: { label: string; value: number; onChange: (v: string) => v
     <label className="grid gap-1">
       <div className="text-sm opacity-70">{props.label}</div>
       <input
-        type="number"
-        value={props.value}
-        onChange={(e) => props.onChange(e.target.value)}
+        type="text"
+        inputMode="decimal"
+        value={String(props.value)}
+        onChange={(e) => {
+          const cleaned = cleanNumberInput(e.target.value);
+          props.onChange(cleaned === "" ? "0" : cleaned);
+        }}
         className="w-full rounded-2xl border border-white/10 bg-black/40 p-3 outline-none"
       />
     </label>
