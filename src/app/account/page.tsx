@@ -6,6 +6,19 @@ import GlowButton from "@/components/GlowButton";
 
 const LS_KEY = "ck_pro_unlocked_redirect_v2";
 
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+    p.then((v) => {
+      clearTimeout(t);
+      resolve(v);
+    }).catch((e) => {
+      clearTimeout(t);
+      reject(e);
+    });
+  });
+}
+
 export default function AccountPage() {
   const [email, setEmail] = useState<string>("");
   const [status, setStatus] = useState<"FREE" | "PRO">("FREE");
@@ -17,7 +30,11 @@ export default function AccountPage() {
     setMsg("Checking…");
 
     try {
-      const { data, error: sessErr } = await supabase.auth.getSession();
+      const { data, error: sessErr } = await withTimeout(
+        supabase.auth.getSession(),
+        4000,
+        "auth.getSession()"
+      );
       if (sessErr) throw sessErr;
 
       const session = data.session;
@@ -30,47 +47,56 @@ export default function AccountPage() {
       // 2) metadata flag (if used)
       const metaPro = Boolean((session?.user?.user_metadata as any)?.pro);
 
-      // 3) whitelist table lookup
+      // 3) whitelist table lookup (may fail due to RLS)
       let whitelist = false;
-      let whitelistNote = "";
+      let note = "";
 
       if (em) {
-        const { data: row, error: wlErr } = await supabase
-          .from("pro_users")
-          .select("email")
-          .eq("email", em)
-          .maybeSingle();
-
-        if (wlErr) {
-          // Most common: RLS blocks select
-          whitelistNote =
-            "Whitelist check failed (likely RLS). If you want Account to show PRO via pro_users, add an RLS policy that allows users to select their own email row.";
-        } else {
-          whitelist = Boolean(row?.email);
+        try {
+          const res = await withTimeout(
+            supabase.from("pro_users").select("email").eq("email", em).maybeSingle(),
+            4000,
+            "pro_users select"
+          );
+          whitelist = Boolean(res.data?.email) && !res.error;
+          if (res.error) note = "Whitelist check blocked (RLS).";
+        } catch (e: any) {
+          note = e?.message || "Whitelist check failed.";
         }
       }
 
       const isPro = Boolean(lsPro || metaPro || whitelist);
       setStatus(isPro ? "PRO" : "FREE");
 
-      setMsg(isPro ? "Updated (PRO)." : `Updated (FREE). ${whitelistNote}`.trim());
+      setMsg(isPro ? "Updated (PRO)." : `Updated (FREE). ${note}`.trim());
     } catch (e: any) {
-      const m = e?.message || String(e);
-      setMsg("Error: " + m);
-      // keep current status, but at least UI won’t hang
+      setMsg("Error: " + (e?.message || String(e)));
     } finally {
       setChecking(false);
     }
   }
 
+  function forceRedirectHomeSoon() {
+    // Always redirect even if Supabase hangs
+    setTimeout(() => {
+      try {
+        window.location.replace("/");
+      } catch {
+        window.location.href = "/";
+      }
+    }, 300);
+  }
+
   async function logout() {
     setMsg("Logging out…");
+
+    // Do NOT let signOut block UX
+    forceRedirectHomeSoon();
+
     try {
-      await supabase.auth.signOut();
-      // hard redirect so session is definitely cleared in UI
-      window.location.replace("/");
-    } catch (e: any) {
-      setMsg("Logout error: " + (e?.message || String(e)));
+      await withTimeout(supabase.auth.signOut(), 2500, "auth.signOut()");
+    } catch {
+      // ignore – redirect already scheduled
     }
   }
 
@@ -81,22 +107,30 @@ export default function AccountPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const loggedIn = Boolean(email);
+
   return (
     <main className="min-h-screen text-white p-6">
       <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-5xl font-extrabold">Account</h1>
-            <div className="mt-2 opacity-70">{email || "Not logged in"}</div>
+            <div className="mt-2 opacity-70">{loggedIn ? email : "Not logged in"}</div>
           </div>
 
-          <button
-            type="button"
-            onClick={logout}
-            className="text-sm underline opacity-80 hover:opacity-100"
-          >
-            Logout
-          </button>
+          {loggedIn ? (
+            <button
+              type="button"
+              onClick={logout}
+              className="text-sm underline opacity-80 hover:opacity-100"
+            >
+              Logout
+            </button>
+          ) : (
+            <a href="/login" className="text-sm underline opacity-80 hover:opacity-100">
+              Login
+            </a>
+          )}
         </div>
 
         <div className="mt-8 grid md:grid-cols-2 gap-6">
@@ -110,7 +144,7 @@ export default function AccountPage() {
                 : "If you bought PRO, use the purchase redirect once (or whitelist your email)."}
             </div>
 
-            <div className="mt-5">
+            <div className="mt-5 flex gap-3 flex-wrap">
               <button
                 type="button"
                 onClick={refresh}
@@ -119,6 +153,12 @@ export default function AccountPage() {
               >
                 {checking ? "Checking…" : "Refresh status"}
               </button>
+
+              {!loggedIn && (
+                <GlowButton href="/login" variant="ghost">
+                  Login
+                </GlowButton>
+              )}
             </div>
 
             <div className="mt-3 text-xs opacity-60 whitespace-pre-wrap">{msg}</div>
@@ -127,15 +167,9 @@ export default function AccountPage() {
           <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
             <div className="text-sm opacity-70">Quick links</div>
             <div className="mt-4 grid gap-3">
-              <a className="underline opacity-90 hover:opacity-100" href="/calculator">
-                Free calculator
-              </a>
-              <a className="underline opacity-90 hover:opacity-100" href="/pro">
-                PRO
-              </a>
-              <GlowButton href="/" variant="ghost">
-                Home
-              </GlowButton>
+              <a className="underline opacity-90 hover:opacity-100" href="/calculator">Free calculator</a>
+              <a className="underline opacity-90 hover:opacity-100" href="/pro">PRO</a>
+              <GlowButton href="/" variant="ghost">Home</GlowButton>
             </div>
           </div>
         </div>
