@@ -525,15 +525,92 @@ function EquityChart({ values }: { values: number[] }) {
   const points = values.map((v, idx) => {
     const x = pad + (idx / Math.max(1, values.length - 1)) * (w - pad * 2);
     const y = pad + (1 - (v - min) / range) * (h - pad * 2);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
+    return { x, y, v };
   });
 
+  const polyPoints = points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+
+  // Hover state
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+
+  function idxFromClientX(clientX: number, rect: DOMRect) {
+    // Convert clientX into SVG viewBox space
+    const x = ((clientX - rect.left) / rect.width) * w;
+    const t = (x - pad) / (w - pad * 2);
+    const idx = Math.round(t * (values.length - 1));
+    return Math.max(0, Math.min(values.length - 1, idx));
+  }
+
+  const hoverPoint = hoverIdx === null ? null : points[hoverIdx];
+
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-white/10 bg-black/30 p-3">
-      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto">
-        <polyline fill="none" stroke="white" strokeOpacity="0.85" strokeWidth="2.5" points={points.join(" ")} />
+    <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black/30 p-3">
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        className="w-full h-auto"
+        onMouseMove={(e) => {
+          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+          const idx = idxFromClientX(e.clientX, rect);
+          setHoverIdx(idx);
+        }}
+        onMouseLeave={() => setHoverIdx(null)}
+      >
+        {/* line */}
+        <polyline
+          fill="none"
+          stroke="white"
+          strokeOpacity="0.85"
+          strokeWidth="2.5"
+          points={polyPoints}
+        />
+
+        {/* baseline */}
         <line x1="0" y1={h - 1} x2={w} y2={h - 1} stroke="white" strokeOpacity="0.08" />
+
+        {/* hover dot + vertical guide */}
+        {hoverPoint && (
+          <g>
+            <line
+              x1={hoverPoint.x}
+              y1={pad}
+              x2={hoverPoint.x}
+              y2={h - pad}
+              stroke="white"
+              strokeOpacity="0.12"
+            />
+            <circle
+              cx={hoverPoint.x}
+              cy={hoverPoint.y}
+              r="4.5"
+              fill="white"
+              fillOpacity="0.9"
+            />
+            <circle
+              cx={hoverPoint.x}
+              cy={hoverPoint.y}
+              r="10"
+              fill="white"
+              fillOpacity="0.06"
+            />
+          </g>
+        )}
       </svg>
+
+      {/* tooltip */}
+      {hoverPoint && (
+        <div
+          className="pointer-events-none absolute z-10 rounded-xl border border-white/10 bg-black/80 px-3 py-2 text-xs backdrop-blur-xl"
+          style={{
+            left: `${(hoverPoint.x / w) * 100}%`,
+            top: `${Math.max(6, (hoverPoint.y / h) * 100 - 12)}%`,
+            transform: "translate(-50%, -100%)",
+          }}
+        >
+          <div className="opacity-70">Step {hoverIdx! + 1}</div>
+          <div className="text-sm font-extrabold">{Math.round(hoverPoint.v).toLocaleString()}</div>
+        </div>
+      )}
+
       <div className="mt-2 flex justify-between text-xs opacity-60">
         <span>min: {Math.round(min)}</span>
         <span>max: {Math.round(max)}</span>
