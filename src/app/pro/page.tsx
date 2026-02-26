@@ -93,6 +93,8 @@ type SimResult = {
   maxDdBreachProb: number;
   avgFailDay: number;
   sampleEquity: number[];
+  failByDay: number[]; // length = days, counts of failures per day
+  failCauseCounts: { daily: number; dd: number };
 };
 
 function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
@@ -112,22 +114,28 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
   const maxDdEquity = accountSize * (1 - maxDdPct / 100);
 
   const pWin = clamp(winRatePct / 100, 0, 1);
-  const rMult = rr;
 
   let pass = 0;
-  let dailyBreach = 0;
-  let ddBreach = 0;
+  let dailyBreachRuns = 0;
+  let ddBreachRuns = 0;
+
   let failDaySum = 0;
   let failCount = 0;
 
+    const failCauseCounts = { daily: 0, dd: 0 };
+
+  // Build arrays
+  const failByDayArr = Array(days).fill(0) as number[];
+
+  // Seeded RNG for stable sample chart
   const seed = Math.floor(
     accountSize +
+      winRatePct * 1000 +
+      rr * 5000 +
       profitTargetPct * 10 +
       dailyLossPct * 100 +
       maxDdPct * 1000 +
       riskPerTradePct * 10000 +
-      winRatePct * 100000 +
-      rr * 1000000 +
       tradesPerDay * 7 +
       days * 13
   );
@@ -138,9 +146,11 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
 
   for (let s = 0; s < sims; s++) {
     let equity = accountSize;
+    let passed = false;
+
     let breachedDaily = false;
     let breachedDd = false;
-    let passed = false;
+
     let failDay = days;
 
     for (let d = 1; d <= days; d++) {
@@ -150,7 +160,7 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
       for (let t = 0; t < tradesPerDay; t++) {
         const riskAmt = (equity * riskPerTradePct) / 100;
         const isWin = Math.random() < pWin;
-        equity += isWin ? riskAmt * rMult : -riskAmt;
+        equity += isWin ? riskAmt * rr : -riskAmt;
 
         if (equity <= maxDdEquity) breachedDd = true;
         if (equity <= dailyLossFloor) breachedDaily = true;
@@ -159,24 +169,32 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
           passed = true;
           break;
         }
+
         if (breachedDaily || breachedDd) break;
       }
 
       if (passed) break;
+
       if (breachedDaily || breachedDd) {
         failDay = d;
+        failByDayArr[d - 1]++;
+
+        if (breachedDaily) {
+          dailyBreachRuns++;
+          failCauseCounts.daily++;
+        }
+        if (breachedDd) {
+          ddBreachRuns++;
+          failCauseCounts.dd++;
+        }
+
+        failCount++;
+        failDaySum += d;
         break;
       }
     }
 
-    if (passed) {
-      pass++;
-    } else {
-      failCount++;
-      failDaySum += failDay;
-      if (breachedDaily) dailyBreach++;
-      if (breachedDd) ddBreach++;
-    }
+    if (passed) pass++;
 
     // Stable sample path for chart (seeded)
     if (s === 0) {
@@ -185,7 +203,7 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
       for (let k = 0; k < steps; k++) {
         const riskAmt = (e * riskPerTradePct) / 100;
         const isWin = rng() < pWin;
-        e += isWin ? riskAmt * rMult : -riskAmt;
+        e += isWin ? riskAmt * rr : -riskAmt;
         if (e < 1) e = 1;
         sampleEquity.push(e);
       }
@@ -196,10 +214,12 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
 
   return {
     passProb: pass / sims,
-    dailyLossBreachProb: dailyBreach / sims,
-    maxDdBreachProb: ddBreach / sims,
+    dailyLossBreachProb: dailyBreachRuns / sims,
+    maxDdBreachProb: ddBreachRuns / sims,
     avgFailDay,
     sampleEquity,
+    failByDay: failByDayArr,
+    failCauseCounts,
   };
 }
 
@@ -375,7 +395,60 @@ export default function ProPage() {
               </div>
             </div>
 
-            <div className="mt-6 text-xs opacity-60">
+            
+            {result && (
+              <div className="mt-6 rounded-3xl border border-white/10 bg-black/30 p-6">
+                <div className="text-sm opacity-70">Failure breakdown</div>
+
+                <div className="mt-4 grid md:grid-cols-2 gap-6">
+                  <div>
+                    <div className="text-xs opacity-60 uppercase">Most common failure cause</div>
+                    <div className="mt-2 text-lg font-extrabold">
+                      {result.failCauseCounts.daily > result.failCauseCounts.dd
+                        ? "Daily loss rule"
+                        : "Max drawdown"}
+                    </div>
+                    <div className="mt-1 text-xs opacity-60">
+                      Daily: {result.failCauseCounts.daily} • DD: {result.failCauseCounts.dd}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs opacity-60 uppercase">You usually fail around</div>
+                    <div className="mt-2 text-lg font-extrabold">
+                      Day {result.avgFailDay.toFixed(1)}
+                    </div>
+                    <div className="mt-1 text-xs opacity-60">
+                      (Only counts runs that failed by rules)
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <div className="text-xs opacity-60 uppercase">Failure by day</div>
+                  <div className="mt-3 flex gap-1 items-end">
+                    {result.failByDay.map((v: number, i: number) => {
+                      const maxV = Math.max(...result.failByDay, 1);
+                      const intensity = Math.min(v / maxV, 1);
+                      return (
+                        <div key={i} className="flex flex-col items-center gap-1">
+                          <div
+                            className="h-10 w-4 rounded-sm border border-white/10"
+                            style={{ backgroundColor: `rgba(239,68,68,${0.15 + intensity * 0.85})` }}
+                            title={`Day ${i + 1}: ${v} failures`}
+                          />
+                          <div className="text-[10px] opacity-60">{i + 1}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-2 text-xs opacity-60">
+                    Darker red = more failures on that day (variance + rule traps).
+                  </div>
+                </div>
+              </div>
+            )}
+<div className="mt-6 text-xs opacity-60">
               Logged in as: <span className="opacity-90">{sessionEmail ?? "not logged in"}</span> • Whitelist:{" "}
               <span className="opacity-90">{isWhitelisted ? "YES" : "NO"}</span>
             </div>
