@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import GlowButton from "@/components/GlowButton";
+import Reveal from "@/components/Reveal";
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -30,6 +31,7 @@ export default function Home() {
         </div>
 
         {/* HERO */}
+        <Reveal delayMs={0}>
         <div className="mt-14 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs opacity-80">
@@ -78,8 +80,11 @@ export default function Home() {
             </div>
           </div>
         </div>
+        </Reveal>
 
         {/* WHAT YOU GET FAST */}
+        <Reveal delayMs={80}>
+        <Reveal delayMs={160}>
         <div className="mt-24">
           <h2 className="text-3xl font-extrabold text-center">What you get in 60 seconds</h2>
           <div className="mt-10 grid md:grid-cols-3 gap-8 text-center">
@@ -100,8 +105,10 @@ export default function Home() {
             />
           </div>
         </div>
+        </Reveal>
 
         {/* WHY FAIL */}
+        <Reveal delayMs={120}>
         <div className="mt-24 mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-extrabold">Why traders actually fail</h2>
           <div className="mt-6 grid gap-3 text-left">
@@ -117,6 +124,7 @@ export default function Home() {
             </GlowButton>
           </div>
         </div>
+        </Reveal>
 
         {/* FREE VS PRO */}
         <div className="mt-24">
@@ -142,8 +150,10 @@ export default function Home() {
             </table>
           </div>
         </div>
+        </Reveal>
 
         {/* FINAL CTA */}
+        <Reveal delayMs={200}>
         <div className="mt-24 text-center">
           <h2 className="text-3xl font-extrabold">Before you buy another challenge…</h2>
           <p className="mt-4 opacity-75">Run the simulation first.</p>
@@ -155,6 +165,7 @@ export default function Home() {
             </GlowButton>
           </div>
         </div>
+        </Reveal>
       </div>
     </main>
   );
