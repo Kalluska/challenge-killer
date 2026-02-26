@@ -167,7 +167,38 @@ export default function Home() {
         </div>
         </Reveal>
       </div>
-    </main>
+    
+      {/* Mini FAQ */}
+      <section className="mx-auto mt-24 max-w-3xl px-6">
+        <h2 className="mb-8 text-center text-3xl font-extrabold">
+          Frequently Asked Questions
+        </h2>
+
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div className="font-bold">Is this financial advice?</div>
+            <div className="mt-2 text-sm opacity-80">
+              No. This is a statistical simulation tool. It models probability and variance — not signals.
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div className="font-bold">Does this work for my prop firm?</div>
+            <div className="mt-2 text-sm opacity-80">
+              Yes. Enter your firm's exact rules (daily loss, max drawdown, target). The model adapts to any rule structure.
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div className="font-bold">Do I need to be profitable?</div>
+            <div className="mt-2 text-sm opacity-80">
+              Not necessarily. The tool shows whether your current risk profile statistically survives — even with variance.
+            </div>
+          </div>
+        </div>
+      </section>
+
+</main>
   );
 }
 
