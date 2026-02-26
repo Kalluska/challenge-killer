@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import GlowButton from "@/components/GlowButton";
 import Reveal from "@/components/Reveal";
+import SocialProof from "@/components/SocialProof";
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -168,6 +169,8 @@ export default function Home() {
         </Reveal>
       </div>
     
+      <SocialProof />
+
       {/* Mini FAQ */}
       <section className="mx-auto mt-32 max-w-3xl px-6">
         <h2 className="mb-8 text-center text-3xl font-extrabold">
