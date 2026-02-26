@@ -4,6 +4,77 @@ import { useEffect, useMemo, useState } from "react";
 import GlowButton from "@/components/GlowButton";
 import { supabase } from "@/lib/supabase";
 
+const LS_KEY = "ck_pro_unlocked_redirect_v2";
+
+type InputsStr = {
+  accountSize: string;
+  profitTargetPct: string;
+  dailyLossPct: string;
+  maxDdPct: string;
+  riskPerTradePct: string;
+  winRatePct: string;
+  rr: string;
+  tradesPerDay: string;
+  days: string;
+};
+
+const defaults: InputsStr = {
+  accountSize: "10000",
+  profitTargetPct: "8",
+  dailyLossPct: "4",
+  maxDdPct: "10",
+  riskPerTradePct: "1",
+  winRatePct: "45",
+  rr: "2",
+  tradesPerDay: "3",
+  days: "10",
+};
+
+function clamp(x: number, a: number, b: number) {
+  return Math.max(a, Math.min(b, x));
+}
+
+function cleanNumberInput(raw: string) {
+  // Keep digits + dot, remove everything else
+  let s = raw.replace(/[^0-9.]/g, "");
+  // Only one dot
+  const firstDot = s.indexOf(".");
+  if (firstDot !== -1) {
+    s = s.slice(0, firstDot + 1) + s.slice(firstDot + 1).replace(/\./g, "");
+  }
+  // Allow empty while typing
+  if (s === "") return "";
+
+  // Strip leading zeros like 052 -> 52, but keep "0" and "0.x"
+  const parts = s.split(".");
+  let intPart = parts[0] ?? "";
+  const decPart = parts[1];
+
+  // if user typed "." first, normalize to "0."
+  if (intPart === "" && decPart !== undefined) intPart = "0";
+
+  // strip leading zeros only if there is another digit after them
+  intPart = intPart.replace(/^0+(?=\d)/, "");
+  if (intPart === "") intPart = "0";
+
+  return decPart !== undefined ? `${intPart}.${decPart}` : intPart;
+}
+
+function toNum(s: string, fallback: number) {
+  const x = Number(s);
+  return Number.isFinite(x) ? x : fallback;
+}
+
+/** Seeded RNG for stable sample chart */
+function mulberry32(seed: number) {
+  return function () {
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 type SimInputs = {
   accountSize: number;
   profitTargetPct: number;
@@ -15,53 +86,6 @@ type SimInputs = {
   tradesPerDay: number;
   days: number;
 };
-
-const LS_KEY = "ck_pro_unlocked_redirect_v2";
-
-const defaults: SimInputs = {
-  accountSize: 10000,
-  profitTargetPct: 8,
-  dailyLossPct: 4,
-  maxDdPct: 10,
-  riskPerTradePct: 1,
-  winRatePct: 45,
-  rr: 2,
-  tradesPerDay: 3,
-  days: 10,
-};
-
-function num(v: string) {
-  const x = Number(v);
-  return Number.isFinite(x) ? x : 0;
-}
-function clamp(x: number, a: number, b: number) {
-  return Math.max(a, Math.min(b, x));
-}
-
-function cleanNumberInput(raw: string) {
-  let s = raw.replace(/[^0-9.]/g, "");
-  const firstDot = s.indexOf(".");
-  if (firstDot !== -1) {
-    s = s.slice(0, firstDot + 1) + s.slice(firstDot + 1).replace(/\./g, "");
-  }
-  if (s === "") return "";
-  const parts = s.split(".");
-  let intPart = parts[0] ?? "";
-  const decPart = parts[1];
-  intPart = intPart.replace(/^0+(?=\d)/, "");
-  if (intPart === "") intPart = "0";
-  return decPart !== undefined ? `${intPart}.${decPart}` : intPart;
-}
-
-/** Fast seeded RNG so chart doesn't jitter every render */
-function mulberry32(seed: number) {
-  return function () {
-    let t = (seed += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 type SimResult = {
   passProb: number;
@@ -96,17 +120,18 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
   let failDaySum = 0;
   let failCount = 0;
 
-  const rng = mulberry32(
-    Math.floor(
-      accountSize +
-        profitTargetPct * 10 +
-        dailyLossPct * 100 +
-        maxDdPct * 1000 +
-        riskPerTradePct * 10000 +
-        winRatePct * 100000 +
-        rr * 1000000
-    )
+  const seed = Math.floor(
+    accountSize +
+      profitTargetPct * 10 +
+      dailyLossPct * 100 +
+      maxDdPct * 1000 +
+      riskPerTradePct * 10000 +
+      winRatePct * 100000 +
+      rr * 1000000 +
+      tradesPerDay * 7 +
+      days * 13
   );
+  const rng = mulberry32(seed);
 
   const steps = Math.max(1, Math.round(days * tradesPerDay));
   let sampleEquity: number[] = [accountSize];
@@ -116,6 +141,7 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
     let breachedDaily = false;
     let breachedDd = false;
     let passed = false;
+    let failDay = days;
 
     for (let d = 1; d <= days; d++) {
       const dayStartEquity = equity;
@@ -128,6 +154,7 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
 
         if (equity <= maxDdEquity) breachedDd = true;
         if (equity <= dailyLossFloor) breachedDaily = true;
+
         if (equity >= targetEquity) {
           passed = true;
           break;
@@ -136,22 +163,26 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
       }
 
       if (passed) break;
-      if (breachedDaily || breachedDd) break;
+      if (breachedDaily || breachedDd) {
+        failDay = d;
+        break;
+      }
     }
 
     if (passed) {
       pass++;
     } else {
       failCount++;
-      failDaySum += days * 0.5; // coarse placeholder
+      failDaySum += failDay;
       if (breachedDaily) dailyBreach++;
       if (breachedDd) ddBreach++;
     }
 
+    // Stable sample path for chart (seeded)
     if (s === 0) {
       let e = accountSize;
       sampleEquity = [e];
-      for (let i = 0; i < steps; i++) {
+      for (let k = 0; k < steps; k++) {
         const riskAmt = (e * riskPerTradePct) / 100;
         const isWin = rng() < pWin;
         e += isWin ? riskAmt * rMult : -riskAmt;
@@ -173,13 +204,13 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
 }
 
 export default function ProPage() {
-  const [i, setI] = useState<SimInputs>(defaults);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [isWhitelisted, setIsWhitelisted] = useState<boolean>(false);
-
   const [unlocked, setUnlocked] = useState<boolean>(false);
   const [loadingAccess, setLoadingAccess] = useState<boolean>(true);
-  const [sims, setSims] = useState<number>(2500);
+
+  const [sims, setSims] = useState<string>("2500");
+  const [inp, setInp] = useState<InputsStr>(defaults);
 
   useEffect(() => {
     (async () => {
@@ -202,7 +233,6 @@ export default function ProPage() {
           .select("email")
           .eq("email", email)
           .maybeSingle();
-
         whitelist = Boolean(row?.email) && !error;
       }
       setIsWhitelisted(whitelist);
@@ -214,11 +244,30 @@ export default function ProPage() {
     })();
   }, []);
 
+  const parsed: SimInputs = useMemo(() => {
+    const base: SimInputs = {
+      accountSize: clamp(toNum(inp.accountSize, 10000), 1, 10_000_000),
+      profitTargetPct: clamp(toNum(inp.profitTargetPct, 8), 0, 200),
+      dailyLossPct: clamp(toNum(inp.dailyLossPct, 4), 0, 100),
+      maxDdPct: clamp(toNum(inp.maxDdPct, 10), 0, 100),
+      riskPerTradePct: clamp(toNum(inp.riskPerTradePct, 1), 0.01, 50),
+      winRatePct: clamp(toNum(inp.winRatePct, 45), 0, 100),
+      rr: clamp(toNum(inp.rr, 2), 0, 50),
+      tradesPerDay: Math.max(1, Math.floor(clamp(toNum(inp.tradesPerDay, 3), 1, 500))),
+      days: Math.max(1, Math.floor(clamp(toNum(inp.days, 10), 1, 365))),
+    };
+    return base;
+  }, [inp]);
+
+  const simCount = useMemo(() => {
+    const n = Math.floor(clamp(toNum(sims, 2500), 800, 8000));
+    return n;
+  }, [sims]);
+
   const result = useMemo(() => {
     if (!unlocked) return null;
-    const n = clamp(sims, 800, 8000);
-    return runMonteCarlo(i, n);
-  }, [i, sims, unlocked]);
+    return runMonteCarlo(parsed, simCount);
+  }, [parsed, simCount, unlocked]);
 
   return (
     <main className="text-white p-6">
@@ -249,7 +298,6 @@ export default function ProPage() {
             <p className="mt-2 opacity-80">
               Buy PRO on Gumroad. After purchase you’ll be redirected back here and unlocked automatically.
             </p>
-
             <div className="mt-5 flex gap-3 flex-wrap">
               <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external>
                 Buy PRO (19€) on Gumroad
@@ -258,7 +306,6 @@ export default function ProPage() {
                 Login (optional)
               </GlowButton>
             </div>
-
             <div className="mt-4 text-xs opacity-60">
               Redirect after purchase: <span className="opacity-90">/pro?pro=1</span>
             </div>
@@ -266,9 +313,9 @@ export default function ProPage() {
         ) : (
           <>
             <div className="mt-8 grid md:grid-cols-3 gap-4">
-              <StatCard title="Simulations / run" value={`${clamp(sims, 800, 8000)}`} sub="Higher = more stable estimate" />
+              <StatCard title="Simulations / run" value={`${simCount}`} sub="Higher = more stable estimate" />
               <StatCard title="Model" value="Monte Carlo" sub="Randomized trade paths (variance)" />
-              <StatCard title="Rules" value="Daily loss + Max DD" sub={`Evaluation stress test (${i.days}d x ${i.tradesPerDay}/day)`} />
+              <StatCard title="Rules" value="Daily loss + Max DD" sub={`Evaluation stress test (${parsed.days}d x ${parsed.tradesPerDay}/day)`} />
             </div>
 
             <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
@@ -279,25 +326,24 @@ export default function ProPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="text-sm opacity-70">Sims</div>
-                  <input
-                    className="w-28 rounded-xl border border-white/10 bg-black/40 p-2 outline-none"
-                    type="number"
+                  <TextNum
                     value={sims}
-                    onChange={(e) => setSims(num(e.target.value))}
+                    onChange={setSims}
+                    className="w-28 rounded-xl border border-white/10 bg-black/40 p-2 outline-none"
                   />
                 </div>
               </div>
 
               <div className="mt-5 grid md:grid-cols-4 gap-3">
-                <Field label="Account ($)" value={i.accountSize} onChange={(v) => setI({ ...i, accountSize: num(v) })} />
-                <Field label="Target (%)" value={i.profitTargetPct} onChange={(v) => setI({ ...i, profitTargetPct: num(v) })} />
-                <Field label="Daily Loss (%)" value={i.dailyLossPct} onChange={(v) => setI({ ...i, dailyLossPct: num(v) })} />
-                <Field label="Max DD (%)" value={i.maxDdPct} onChange={(v) => setI({ ...i, maxDdPct: num(v) })} />
-                <Field label="Risk / trade (%)" value={i.riskPerTradePct} onChange={(v) => setI({ ...i, riskPerTradePct: num(v) })} />
-                <Field label="Winrate (%)" value={i.winRatePct} onChange={(v) => setI({ ...i, winRatePct: num(v) })} />
-                <Field label="RR" value={i.rr} onChange={(v) => setI({ ...i, rr: num(v) })} />
-                <Field label="Trades/day" value={i.tradesPerDay} onChange={(v) => setI({ ...i, tradesPerDay: num(v) })} />
-                <Field label="Days" value={i.days} onChange={(v) => setI({ ...i, days: num(v) })} />
+                <Field label="Account ($)" v={inp.accountSize} setV={(x) => setInp({ ...inp, accountSize: x })} />
+                <Field label="Target (%)" v={inp.profitTargetPct} setV={(x) => setInp({ ...inp, profitTargetPct: x })} />
+                <Field label="Daily Loss (%)" v={inp.dailyLossPct} setV={(x) => setInp({ ...inp, dailyLossPct: x })} />
+                <Field label="Max DD (%)" v={inp.maxDdPct} setV={(x) => setInp({ ...inp, maxDdPct: x })} />
+                <Field label="Risk / trade (%)" v={inp.riskPerTradePct} setV={(x) => setInp({ ...inp, riskPerTradePct: x })} />
+                <Field label="Winrate (%)" v={inp.winRatePct} setV={(x) => setInp({ ...inp, winRatePct: x })} />
+                <Field label="RR" v={inp.rr} setV={(x) => setInp({ ...inp, rr: x })} />
+                <Field label="Trades/day" v={inp.tradesPerDay} setV={(x) => setInp({ ...inp, tradesPerDay: x })} />
+                <Field label="Days" v={inp.days} setV={(x) => setInp({ ...inp, days: x })} />
               </div>
             </div>
 
@@ -312,7 +358,7 @@ export default function ProPage() {
                   <Mini title="Daily loss breach" value={result ? `${Math.round(result.dailyLossBreachProb * 100)}%` : "—"} />
                   <Mini title="Max DD breach" value={result ? `${Math.round(result.maxDdBreachProb * 100)}%` : "—"} />
                   <Mini title="Avg fail day" value={result ? `${result.avgFailDay.toFixed(1)}` : "—"} />
-                  <Mini title="Runs" value={result ? `${clamp(sims, 800, 8000)}` : "—"} />
+                  <Mini title="Runs" value={result ? `${simCount}` : "—"} />
                 </div>
 
                 <div className="mt-4 text-xs opacity-60">
@@ -324,7 +370,7 @@ export default function ProPage() {
                 <div className="text-sm opacity-70">Equity curve preview</div>
                 <div className="text-xs opacity-60 mt-1">One representative randomized path</div>
                 <div className="mt-4">
-                  <EquityChart values={result?.sampleEquity ?? [i.accountSize]} />
+                  <EquityChart values={result?.sampleEquity ?? [parsed.accountSize]} />
                 </div>
               </div>
             </div>
@@ -340,6 +386,41 @@ export default function ProPage() {
   );
 }
 
+function TextNum({
+  value,
+  onChange,
+  className,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  className: string;
+}) {
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={value}
+      onChange={(e) => onChange(cleanNumberInput(e.target.value))}
+      className={className}
+    />
+  );
+}
+
+function Field({ label, v, setV }: { label: string; v: string; setV: (x: string) => void }) {
+  return (
+    <label className="grid gap-1">
+      <div className="text-sm opacity-70">{label}</div>
+      <input
+        type="text"
+        inputMode="decimal"
+        value={v}
+        onChange={(e) => setV(cleanNumberInput(e.target.value))}
+        className="w-full rounded-2xl border border-white/10 bg-black/40 p-3 outline-none"
+      />
+    </label>
+  );
+}
+
 function StatCard({ title, value, sub }: { title: string; value: string; sub: string }) {
   return (
     <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
@@ -349,6 +430,7 @@ function StatCard({ title, value, sub }: { title: string; value: string; sub: st
     </div>
   );
 }
+
 function Mini({ title, value }: { title: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
@@ -357,23 +439,7 @@ function Mini({ title, value }: { title: string; value: string }) {
     </div>
   );
 }
-function Field(props: { label: string; value: number; onChange: (v: string) => void }) {
-  return (
-    <label className="grid gap-1">
-      <div className="text-sm opacity-70">{props.label}</div>
-      <input
-        type="text"
-        inputMode="decimal"
-        value={String(props.value)}
-        onChange={(e) => {
-          const cleaned = cleanNumberInput(e.target.value);
-          props.onChange(cleaned === "" ? "0" : cleaned);
-        }}
-        className="w-full rounded-2xl border border-white/10 bg-black/40 p-3 outline-none"
-      />
-    </label>
-  );
-}
+
 function EquityChart({ values }: { values: number[] }) {
   const w = 560;
   const h = 220;
