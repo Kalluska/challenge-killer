@@ -15,7 +15,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="text-white">
+    <main className="text-white pb-32">
       <div className="mx-auto max-w-6xl px-6 py-12">
         {/* TOP BAR */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -169,7 +169,7 @@ export default function Home() {
       </div>
     
       {/* Mini FAQ */}
-      <section className="mx-auto mt-24 max-w-3xl px-6">
+      <section className="mx-auto mt-32 max-w-3xl px-6">
         <h2 className="mb-8 text-center text-3xl font-extrabold">
           Frequently Asked Questions
         </h2>
