@@ -54,7 +54,7 @@ export default function AccountPage() {
       if (em) {
         try {
           const res = await withTimeout(
-            supabase.from("pro_users").select("email").eq("email", em).maybeSingle(),
+            Promise.resolve(supabase.from("pro_users").select("email").eq("email", em).maybeSingle()),
             4000,
             "pro_users select"
           );
