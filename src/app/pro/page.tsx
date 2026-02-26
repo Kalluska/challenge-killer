@@ -72,15 +72,6 @@ function mulberry32(seed: number) {
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return (
-
-      {claimedBanner && (
-        <div className="fixed left-1/2 top-6 z-50 -translate-x-1/2">
-          <div className="rounded-2xl border border-white/15 bg-black/80 px-5 py-3 text-sm backdrop-blur-xl shadow-[0_0_40px_rgba(255,255,255,0.08)]">
-            <div className="font-extrabold">✅ PRO Activated</div>
-            <div className="text-xs opacity-70">Your purchase was linked to your account.</div>
-          </div>
-        </div>
-      )}
 (t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
@@ -313,6 +304,15 @@ export default function ProPage() {
 
   return (
     <main className="text-white p-6">
+      {claimedBanner && (
+        <div className="fixed left-1/2 top-6 z-50 -translate-x-1/2">
+          <div className="rounded-2xl border border-white/15 bg-black/80 px-5 py-3 text-sm backdrop-blur-xl shadow-[0_0_40px_rgba(255,255,255,0.08)]">
+            <div className="font-extrabold">✅ PRO Activated</div>
+            <div className="text-xs opacity-70">Your purchase was linked to your account.</div>
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto max-w-6xl">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
