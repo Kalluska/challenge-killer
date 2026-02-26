@@ -71,7 +71,17 @@ function mulberry32(seed: number) {
     let t = (seed += 0x6d2b79f5);
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    return (
+
+      {claimedBanner && (
+        <div className="fixed left-1/2 top-6 z-50 -translate-x-1/2">
+          <div className="rounded-2xl border border-white/15 bg-black/80 px-5 py-3 text-sm backdrop-blur-xl shadow-[0_0_40px_rgba(255,255,255,0.08)]">
+            <div className="font-extrabold">✅ PRO Activated</div>
+            <div className="text-xs opacity-70">Your purchase was linked to your account.</div>
+          </div>
+        </div>
+      )}
+(t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
 
@@ -224,6 +234,9 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
 }
 
 export default function ProPage() {
+  const sp = useSearchParams();
+  const [claimedBanner, setClaimedBanner] = useState(false);
+
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [isWhitelisted, setIsWhitelisted] = useState<boolean>(false);
   const [unlocked, setUnlocked] = useState<boolean>(false);
@@ -233,6 +246,15 @@ export default function ProPage() {
   const [inp, setInp] = useState<InputsStr>(defaults);
 
   useEffect(() => {
+    // Show "PRO Activated" banner if user came from /claim
+    try {
+      if (sp.get("claimed") === "1") {
+        setClaimedBanner(true);
+        // auto-hide
+        setTimeout(() => setClaimedBanner(false), 4500);
+      }
+    } catch {}
+
     (async () => {
       setLoadingAccess(true);
 
