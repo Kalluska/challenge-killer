@@ -16,102 +16,128 @@ export default function Home() {
   return (
     <main className="text-white">
       <div className="mx-auto max-w-6xl px-6 py-12">
+        {/* TOP BAR */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="font-extrabold tracking-tight">Challenge Killer™</div>
+
+          <div className="flex gap-4">
+            <a className="text-sm underline opacity-80 hover:opacity-100" href="/calculator">Free</a>
+            <a className="text-sm underline opacity-80 hover:opacity-100" href="/pro">PRO</a>
+            <a className="text-sm underline opacity-80 hover:opacity-100" href={loggedIn ? "/account" : "/login"}>
+              {loggedIn ? "Account" : "Login"}
+            </a>
+          </div>
+        </div>
 
         {/* HERO */}
-        <div className="grid md:grid-cols-2 gap-10 items-center">
+        <div className="mt-14 grid md:grid-cols-2 gap-10 items-center">
           <div>
-            <h1 className="text-5xl font-extrabold leading-tight">
-              Stop blowing prop firm accounts.
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs opacity-80">
+              <span className="h-2 w-2 rounded-full bg-white/60" />
+              Rule-trap simulator for prop firm evaluations
+            </div>
+
+            <h1 className="mt-5 text-5xl font-extrabold leading-tight">
+              Don’t “donate” another challenge fee to variance.
             </h1>
 
             <p className="mt-4 text-lg opacity-75">
-              Most traders fail from rule breaks — not strategy.
-              Simulate your pass probability before risking another challenge.
+              A strategy can be profitable and still fail an evaluation because of daily loss limits and drawdown rules.
+              Run your numbers first.
             </p>
 
             <div className="mt-8 flex gap-4 flex-wrap">
-              <GlowButton href="/calculator">
-                Run Free Pass Estimate
-              </GlowButton>
-
+              <GlowButton href="/calculator">Run Free Pass Estimate</GlowButton>
               <GlowButton href="/login" variant="ghost">
-                Login to PRO
+                {loggedIn ? "Go to Account" : "Login to PRO"}
               </GlowButton>
+            </div>
+
+            <div className="mt-4 text-xs opacity-60">
+              Educational tool only. Not financial advice.
             </div>
           </div>
 
+          {/* PRO CARD */}
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className="text-sm opacity-70">What PRO adds</div>
+            <div className="text-sm opacity-70">PRO = Risk engine</div>
             <ul className="mt-3 space-y-2 text-sm opacity-85 list-disc pl-5">
-              <li>Daily loss + max drawdown Monte Carlo simulation</li>
-              <li>Average fail day (when you statistically blow it)</li>
-              <li>Survival Plan generator</li>
-              <li>Saved to your account</li>
+              <li>Monte Carlo simulations (variance modeling)</li>
+              <li>Failure heatmap (which day you usually blow it)</li>
+              <li>Most common failure cause (daily loss vs drawdown)</li>
+              <li>Equity curve preview + key breach probabilities</li>
             </ul>
 
-            <div className="mt-6">
-              <GlowButton href="/pro">Go PRO (19€)</GlowButton>
+            <div className="mt-6 flex gap-3 flex-wrap">
+              <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external>
+                Go PRO (19€)
+              </GlowButton>
+              <GlowButton href="/pro" variant="ghost">
+                View PRO page
+              </GlowButton>
             </div>
           </div>
         </div>
 
-        {/* HOW IT WORKS */}
+        {/* WHAT YOU GET FAST */}
         <div className="mt-24">
-          <h2 className="text-3xl font-extrabold text-center">How it works</h2>
-
+          <h2 className="text-3xl font-extrabold text-center">What you get in 60 seconds</h2>
           <div className="mt-10 grid md:grid-cols-3 gap-8 text-center">
             <Step
               number="01"
-              title="Enter Real Rules"
-              desc="Input your actual prop firm rules and realistic winrate."
+              title="Reality check"
+              desc="A fast pass-probability estimate based on your own stats and rules."
             />
             <Step
               number="02"
-              title="Run Simulations"
-              desc="Monte Carlo simulation models thousands of random trade paths."
+              title="Rule-trap exposure"
+              desc="See how daily loss + drawdown rules punish variance."
             />
             <Step
               number="03"
-              title="See Statistical Risk"
-              desc="Understand how likely you are to pass — or blow it."
+              title="A clear next move"
+              desc="Adjust risk/trades/day before you waste another evaluation fee."
             />
           </div>
         </div>
 
-        {/* WHY TRADERS FAIL */}
-        <div className="mt-24 text-center max-w-3xl mx-auto">
-          <h2 className="text-3xl font-extrabold">
-            Most traders don’t fail from strategy.
-          </h2>
-          <p className="mt-6 text-lg opacity-75">
-            They fail from variance, over-risking, and daily loss rule violations.
-            A strategy with positive expectancy can still statistically fail
-            a short evaluation period.
-          </p>
+        {/* WHY FAIL */}
+        <div className="mt-24 mx-auto max-w-3xl text-center">
+          <h2 className="text-3xl font-extrabold">Why traders actually fail</h2>
+          <div className="mt-6 grid gap-3 text-left">
+            <Bullet>They underestimate losing streak variance.</Bullet>
+            <Bullet>They ignore daily loss compounding after a bad start.</Bullet>
+            <Bullet>They overtrade to “make it back” and hit rule limits.</Bullet>
+          </div>
+
+          <div className="mt-10 flex justify-center gap-4 flex-wrap">
+            <GlowButton href="/calculator">Run Free Estimate</GlowButton>
+            <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external variant="ghost">
+              Go PRO (19€)
+            </GlowButton>
+          </div>
         </div>
 
         {/* FREE VS PRO */}
         <div className="mt-24">
-          <h2 className="text-3xl font-extrabold text-center">
-            Free vs PRO
-          </h2>
+          <h2 className="text-3xl font-extrabold text-center">Free vs PRO</h2>
 
-          <div className="mt-10 overflow-x-auto">
+          <div className="mt-10 overflow-x-auto rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="py-3">Feature</th>
-                  <th>Free</th>
-                  <th>PRO</th>
+                  <th className="py-4 px-5">Feature</th>
+                  <th className="py-4 px-5">Free</th>
+                  <th className="py-4 px-5">PRO</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
-                <Row feature="Quick risk estimate" free="✓" pro="✓" />
-                <Row feature="Daily loss simulation" free="—" pro="✓" />
-                <Row feature="Max drawdown modeling" free="—" pro="✓" />
-                <Row feature="Average fail day" free="—" pro="✓" />
-                <Row feature="Survival Plan generator" free="—" pro="✓" />
-                <Row feature="Saved to account" free="—" pro="✓" />
+                <Row feature="Quick pass estimate" free="✓" pro="✓" />
+                <Row feature="Daily loss breach probability" free="—" pro="✓" />
+                <Row feature="Max drawdown breach probability" free="—" pro="✓" />
+                <Row feature="Failure heatmap (by day)" free="—" pro="✓" />
+                <Row feature="Common failure cause" free="—" pro="✓" />
+                <Row feature="Equity curve preview" free="—" pro="✓" />
               </tbody>
             </table>
           </div>
@@ -119,24 +145,16 @@ export default function Home() {
 
         {/* FINAL CTA */}
         <div className="mt-24 text-center">
-          <h2 className="text-3xl font-extrabold">
-            Before you buy another challenge…
-          </h2>
-
-          <p className="mt-4 opacity-75">
-            Run the simulation first.
-          </p>
+          <h2 className="text-3xl font-extrabold">Before you buy another challenge…</h2>
+          <p className="mt-4 opacity-75">Run the simulation first.</p>
 
           <div className="mt-8 flex justify-center gap-4 flex-wrap">
-            <GlowButton href="/calculator">
-              Run Free Estimate
-            </GlowButton>
-            <GlowButton href="/pro" variant="ghost">
-              Login to PRO
+            <GlowButton href="/calculator">Run Free Estimate</GlowButton>
+            <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external variant="ghost">
+              Go PRO (19€)
             </GlowButton>
           </div>
         </div>
-
       </div>
     </main>
   );
@@ -152,12 +170,20 @@ function Step({ number, title, desc }: any) {
   );
 }
 
+function Bullet({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+      <div className="text-sm opacity-85">{children}</div>
+    </div>
+  );
+}
+
 function Row({ feature, free, pro }: any) {
   return (
     <tr className="border-b border-white/5">
-      <td className="py-3">{feature}</td>
-      <td>{free}</td>
-      <td>{pro}</td>
+      <td className="py-4 px-5">{feature}</td>
+      <td className="py-4 px-5">{free}</td>
+      <td className="py-4 px-5">{pro}</td>
     </tr>
   );
 }
