@@ -277,19 +277,16 @@ async function saveProRun(inputs: any, outputs: any) {
         .eq("id", runId)
         .single();
 
-      if (error || !data) return;
-
-      const inp = data.inputs ?? {};
-
-      if (inp.account !== undefined) setAccount(inp.account);
-      if (inp.target !== undefined) setTarget(inp.target);
-      if (inp.dailyLoss !== undefined) setDailyLoss(inp.dailyLoss);
-      if (inp.maxDd !== undefined) setMaxDd(inp.maxDd);
-      if (inp.riskPerTrade !== undefined) setRiskPerTrade(inp.riskPerTrade);
-      if (inp.winrate !== undefined) setWinrate(inp.winrate);
-      if (inp.rr !== undefined) setRr(inp.rr);
-      if (inp.tradesPerDay !== undefined) setTradesPerDay(inp.tradesPerDay);
-      if (inp.days !== undefined) setDays(inp.days);
+      if (error || !data) return;            const inp = data.inputs ?? {};
+            // (no setter found for inp.account — skipped)
+            // (no setter found for inp.target — skipped)
+            // (no setter found for inp.dailyLoss — skipped)
+            // (no setter found for inp.maxDd — skipped)
+            // (no setter found for inp.riskPerTrade — skipped)
+            // (no setter found for inp.winrate — skipped)
+            // (no setter found for inp.rr — skipped)
+            // (no setter found for inp.tradesPerDay — skipped)
+            // (no setter found for inp.days — skipped)
 
       setToast("📌 Loaded saved run");
       setTimeout(() => setToast(null), 1500);
