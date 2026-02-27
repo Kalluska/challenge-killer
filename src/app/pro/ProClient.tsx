@@ -366,7 +366,6 @@ async function saveProRun(inputs: any, outputs: any) {
       <div className="mx-auto max-w-6xl">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-extrabold"
           <div className="flex items-center justify-between gap-3">
             <div className="text-xs opacity-70">PRO</div>
             <div className="text-right">
