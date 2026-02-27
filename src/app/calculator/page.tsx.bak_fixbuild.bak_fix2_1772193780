@@ -215,6 +215,7 @@ return (
               Save run
             </button>
 
+            Unlock PRO (19€)</GlowButton>
               <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external variant="ghost">
                 Buy on Gumroad
               </GlowButton>

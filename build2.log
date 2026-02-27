@@ -1,0 +1,62 @@
+
+> challenge-killer@0.1.0 build
+> next build
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\kalle\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\kalle\challenge-killer\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./challenge-killer/src/app/calculator/page.tsx:5:1
+Ecmascript file had an error
+[0m [90m 3 |[39m [36mexport[39m [36mconst[39m dynamic [33m=[39m [32m"force-dynamic"[39m[33m;[39m
+ [90m 4 |[39m
+[31m[1m>[22m[39m[90m 5 |[39m [32m"use client"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36mimport[39m { useMemo[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
+ [90m 8 |[39m [36mimport[39m [33mGlowButton[39m [36mfrom[39m [32m"@/components/GlowButton"[39m[33m;[39m[0m
+
+The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+
+Import traces:
+  Client Component Browser:
+    ./challenge-killer/src/app/calculator/page.tsx [Client Component Browser]
+    ./challenge-killer/src/app/calculator/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./challenge-killer/src/app/calculator/page.tsx [Client Component SSR]
+    ./challenge-killer/src/app/calculator/page.tsx [Server Component]
+
+
+./challenge-killer/src/app/pro/ProClient.tsx:373:17
+Parsing ecmascript source code failed
+[0m [90m 371 |[39m             [33m>[39m[33mPRO[39m
+ [90m 372 |[39m             {saveMsg [33m&&[39m [33m<[39m[33mdiv[39m className[33m=[39m[32m"mt-2 text-xs opacity-70"[39m[33m>[39m{saveMsg}[33m<[39m[33m/[39m[33mdiv[39m[33m>[39m}
+[31m[1m>[22m[39m[90m 373 |[39m           [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m     |[39m                 [31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 374 |[39m           [33m<[39m[33mh1[39m className[33m=[39m[32m"text-3xl font-extrabold"[39m[33m>[39m[33mChallenge[39m [33mKiller™[39m [33mPRO[39m[33m<[39m[33m/[39m[33mh1[39m[33m>[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 375 |[39m             [33m<[39m[33mp[39m className[33m=[39m[32m"opacity-70 mt-1"[39m[33m>[39m
+ [90m 376 |[39m               [33mMonte[39m [33mCarlo[39m risk engine (daily loss [33m+[39m drawdown) [33m+[39m equity curve preview[33m.[39m
+ [90m 377 |[39m             [33m<[39m[33m/[39m[33mp[39m[33m>[39m[0m
+
+Expected '</', got 'jsx text'
+
+Import trace:
+  Server Component:
+    ./challenge-killer/src/app/pro/ProClient.tsx
+    ./challenge-killer/src/app/pro/page.tsx
+
+
+    at <unknown> (./challenge-killer/src/app/calculator/page.tsx:5:1)
+    at <unknown> (./challenge-killer/src/app/pro/ProClient.tsx:373:17)

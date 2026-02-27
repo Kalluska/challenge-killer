@@ -371,7 +371,7 @@ async function saveProRun(inputs: any, outputs: any) {
             >PRO
             {saveMsg && <div className="mt-2 text-xs opacity-70">{saveMsg}</div>}
           </div>
-          <h1 className="text-3xl font-extrabold">Challenge Killer™ PRO</h1>
+          <div className="text-3xl font-extrabold>Challenge Killer™ PRO</h1>
             <p className="opacity-70 mt-1">
               Monte Carlo risk engine (daily loss + drawdown) + equity curve preview.
             </p>

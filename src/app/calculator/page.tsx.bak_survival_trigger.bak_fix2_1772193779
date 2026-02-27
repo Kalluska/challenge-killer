@@ -2,8 +2,6 @@
 
 import { useMemo, useState } from "react";
 import GlowButton from "@/components/GlowButton";
-import UpgradeModal from "@/components/UpgradeModal";
-import { supabase } from "@/lib/supabase";
 
 function clamp(x: number, a: number, b: number) {
   return Math.max(a, Math.min(b, x));
@@ -28,13 +26,8 @@ function cleanNumberInput(raw: string) {
   return decPart !== undefined ? `${intPart}.${decPart}` : intPart;
 }
 
-const FREE_SAVE_KEY = "ck_free_save_used_v1";
-
 export default function Calculator() {
-  
-  const [showUpgrade, setShowUpgrade] = useState(false);
-  const [saveMsg, setSaveMsg] = useState<string>("");
-const [winrate, setWinrate] = useState<number | "">(45);
+  const [winrate, setWinrate] = useState<number | "">(45);
   const [rr, setRr] = useState<number | "">(2);
   const [risk, setRisk] = useState<number | "">(1);
   const [dailyLoss, setDailyLoss] = useState<number | "">(4);
@@ -111,44 +104,7 @@ const [winrate, setWinrate] = useState<number | "">(45);
       ? "bg-yellow-400"
       : "bg-green-400";
 
-  
-  async function handleSaveRun(currentInputs: any, currentOutputs: any) {
-    setSaveMsg("");
-    try {
-      const used = Number(localStorage.getItem(FREE_SAVE_KEY) || "0");
-      if (used >= 1) {
-        setShowUpgrade(true);
-        return;
-      }
-
-      // Try save to account if logged in; otherwise save locally (still counts as the one free save)
-      try {
-        const { data } = await supabase.auth.getSession();
-        const u = data.session?.user;
-        if (u) {
-          await supabase.from("pro_runs").insert({
-            user_id: u.id,
-            email: (u.email || "").toLowerCase(),
-            inputs: { ...currentInputs, source: "free" },
-            outputs: { ...currentOutputs, source: "free" },
-          });
-          localStorage.setItem(FREE_SAVE_KEY, "1");
-          setSaveMsg("Saved to your account ✅ (1 free save used)");
-          return;
-        }
-      } catch {
-        // fall back to local save
-      }
-
-      localStorage.setItem("ck_free_saved_run_v1", JSON.stringify({ inputs: currentInputs, outputs: currentOutputs }));
-      localStorage.setItem(FREE_SAVE_KEY, "1");
-      setSaveMsg("Saved locally ✅ (1 free save used)");
-    } catch {
-      setSaveMsg("Save failed.");
-    }
-  }
-
-return (
+  return (
     <main className="min-h-screen text-white p-6">
       <div className="mx-auto max-w-4xl">
         <div className="flex items-start justify-between flex-wrap gap-3">
@@ -206,15 +162,7 @@ return (
             </div>
 
             <div className="mt-8 flex gap-4 flex-wrap">
-              <GlowButton href="/pro">Save run</button>
-
-            <button
-              onClick={() => handleSaveRun({ winrate, rr, riskPerTrade, dailyLossLimit }, { survivalProbability, lossesToDailyKill, expectedLosingStreak })}
-              className="mr-3 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold hover:bg-white/15 transition"
-            >
-              Save run
-            </button>
-
+              <GlowButton href="/pro">Unlock PRO (19€)</GlowButton>
               <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external variant="ghost">
                 Buy on Gumroad
               </GlowButton>
@@ -233,13 +181,7 @@ return (
       <style jsx global>{`
         /* nothing */
       `}</style>
-    
-      <UpgradeModal
-        open={showUpgrade}
-        onClose={() => setShowUpgrade(false)}
-        gumroadUrl={process.env.NEXT_PUBLIC_GUMROAD_URL}
-      />
-</main>
+    </main>
   );
 
   function Input({
