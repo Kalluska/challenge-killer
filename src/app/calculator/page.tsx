@@ -1,5 +1,4 @@
 "use client";
-
 import { useMemo, useState } from "react";
 import GlowButton from "@/components/GlowButton";
 import UpgradeModal from "@/components/UpgradeModal";
@@ -230,7 +229,8 @@ return (
             <div className="mt-4 text-xs opacity-50">Educational tool only. Not financial advice.</div>
           </Card>
         </div>
-      </div>      <UpgradeModal
+      </div>
+      <UpgradeModal
         open={showUpgrade}
         onClose={() => setShowUpgrade(false)}
         gumroadUrl={process.env.NEXT_PUBLIC_GUMROAD_URL}

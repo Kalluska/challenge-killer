@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import GlowButton from "@/components/GlowButton";
 import { supabase } from "@/lib/supabase";
