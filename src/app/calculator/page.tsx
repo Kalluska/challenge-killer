@@ -208,20 +208,24 @@ return (
             </div>
 
             <div className="mt-8 flex gap-4 flex-wrap">
-              <GlowButton href="/pro">Go PRO</GlowButton>
+                <GlowButton href="/pro">Go PRO</GlowButton>
 
-            <button
-              onClick={() => handleSaveRun({ winrate, rr, riskPerTrade, dailyLossLimit }, { survivalProbability, lossesToDailyKill, expectedLosingStreak })}
-              className="mr-3 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold hover:bg-white/15 transition"
-            >
-              Save run
-            </button>
+                <button
+                  onClick={() =>
+                    handleSaveRun(
+                      { winrate, rr, riskPerTrade: risk, dailyLossLimit: dailyLoss },
+                      { survivalProbability: score, lossesToDailyKill: lossesToDaily, expectedLosingStreak }
+                    )
+                  }
+                  className="rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold hover:bg-white/15 transition"
+                >
+                  Save run
+                </button>
 
-            Unlock PRO (19€)</GlowButton>
-              <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external variant="ghost">
-                Buy on Gumroad
-              </GlowButton>
-            </div>
+                <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external variant="ghost">
+                  Buy on Gumroad
+                </GlowButton>
+              </div>
 
             <div className="mt-3 text-xs opacity-70">
               PRO shows <span className="font-bold">where you statistically blow it</span> and generates a survival plan.
