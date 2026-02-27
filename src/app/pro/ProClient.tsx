@@ -226,7 +226,11 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
 }
 
 export default function ProPage() {
-  async function saveProRun(inputs: any, outputs: any) {
+  
+  const [lastInputs, setLastInputs] = useState<any>(null);
+  const [lastOutputs, setLastOutputs] = useState<any>(null);
+  const [saveMsg, setSaveMsg] = useState<string>("");
+async function saveProRun(inputs: any, outputs: any) {
     try {
       const { data } = await supabase.auth.getSession();
       const u = data.session?.user;
@@ -323,8 +327,30 @@ export default function ProPage() {
 
   return (
     <main className="text-white p-6">
-      <div className="fixed right-6 bottom-6 z-40">
+      <div className="fixed right-6 bottom-6 z-40 flex gap-2">
         <a href="/pro/history" className="rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-xl hover:bg-white/15 transition">
+          History
+        </a>
+        <button
+          onClick={async () => {
+            setSaveMsg("");
+            if (!lastInputs || !lastOutputs) {
+              setSaveMsg("Run a simulation first.");
+              return;
+            }
+            await saveProRun(lastInputs, lastOutputs);
+            setSaveMsg("Saved ✅");
+            setTimeout(() => setSaveMsg(""), 2500);
+          }}
+          className="rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-xl hover:bg-white/15 transition"
+        >
+          Save run
+        </button>
+      </div>
+
+      <div className="fixed right-6 bottom-6 z-40">
+        <a href="/pro/history"
+           className="rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-xl hover:bg-white/15 transition">
           History
         </a>
       </div>
@@ -341,7 +367,11 @@ export default function ProPage() {
       <div className="mx-auto max-w-6xl">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-extrabold">Challenge Killer™ PRO</h1>
+            <h1 className="text-3xl font-extrabold"
+            >PRO
+            {saveMsg && <div className="mt-2 text-xs opacity-70">{saveMsg}</div>}
+          </div>
+          <div className="text-3xl font-extrabold>Challenge Killer™ PRO</h1>
             <p className="opacity-70 mt-1">
               Monte Carlo risk engine (daily loss + drawdown) + equity curve preview.
             </p>
