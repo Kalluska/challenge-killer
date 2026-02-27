@@ -228,6 +228,10 @@ export default function ProPage() {
   
   const [lastInputs, setLastInputs] = useState<any>(null);
   const [lastOutputs, setLastOutputs] = useState<any>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const runId = searchParams.get("run");
+
   const [saveMsg, setSaveMsg] = useState<string>("");
 async function saveProRun(inputs: any, outputs: any) {
     try {
@@ -258,7 +262,41 @@ async function saveProRun(inputs: any, outputs: any) {
   const [sims, setSims] = useState<string>("2500");
   const [inp, setInp] = useState<InputsStr>(defaults);
 
+  
+
   useEffect(() => {
+    if (!runId) return;
+
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("runs")
+        .select("*")
+        .eq("id", runId)
+        .single();
+
+      if (error || !data) return;
+
+      const inp = data.inputs ?? {};
+
+      if (inp.account !== undefined) setAccount(inp.account);
+      if (inp.target !== undefined) setTarget(inp.target);
+      if (inp.dailyLoss !== undefined) setDailyLoss(inp.dailyLoss);
+      if (inp.maxDd !== undefined) setMaxDd(inp.maxDd);
+      if (inp.riskPerTrade !== undefined) setRiskPerTrade(inp.riskPerTrade);
+      if (inp.winrate !== undefined) setWinrate(inp.winrate);
+      if (inp.rr !== undefined) setRr(inp.rr);
+      if (inp.tradesPerDay !== undefined) setTradesPerDay(inp.tradesPerDay);
+      if (inp.days !== undefined) setDays(inp.days);
+
+      setToast("📌 Loaded saved run");
+      setTimeout(() => setToast(null), 1500);
+    })();
+  }, [runId]);
+
+useEffect(() => {
     // Show "PRO Activated" banner if user came from /claim
     try {
       if (sp.get("claimed") === "1") {
@@ -526,7 +564,15 @@ async function saveProRun(inputs: any, outputs: any) {
           </>
         )}
       </div>
-    </main>
+    
+  {toast && (
+    <div className="fixed left-1/2 bottom-8 z-50 -translate-x-1/2">
+      <div className="rounded-2xl border border-white/15 bg-black/80 px-4 py-2 text-sm backdrop-blur-xl shadow-[0_0_40px_rgba(255,255,255,0.10)]">
+        {toast}
+      </div>
+    </div>
+  )}
+</main>
   );
 }
 
