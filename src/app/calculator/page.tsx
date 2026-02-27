@@ -1,3 +1,5 @@
+"use client";
+
 export const dynamic = "force-dynamic";
 
 "use client";
@@ -211,37 +213,28 @@ return (
                 <GlowButton href="/pro">Go PRO</GlowButton>
 
                 <button
-                  onClick={() =>
-                    handleSaveRun(
-                      { winrate, rr, riskPerTrade: risk, dailyLossLimit: dailyLoss },
-                      { survivalProbability: score, lossesToDailyKill: lossesToDaily, expectedLosingStreak }
-                    )
-                  }
+                  onClick={() => handleSaveRun(
+                    { winrate, rr, riskPerTrade: risk, dailyLossLimit: dailyLoss },
+                    { survivalProbability: Math.round(score), lossesToDailyKill: lossesToDaily, expectedLosingStreak }
+                  )}
                   className="rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold hover:bg-white/15 transition"
                 >
                   Save run
                 </button>
 
-                <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external variant="ghost">
+                <GlowButton href={process.env.NEXT_PUBLIC_GUMROAD_URL || "https://challengekiller.gumroad.com/l/mijmrn"} external variant="ghost">
                   Buy on Gumroad
                 </GlowButton>
               </div>
 
-            <div className="mt-3 text-xs opacity-70">
+              <div className="mt-3 text-xs opacity-70">
               PRO shows <span className="font-bold">where you statistically blow it</span> and generates a survival plan.
             </div>
 
             <div className="mt-4 text-xs opacity-50">Educational tool only. Not financial advice.</div>
           </Card>
         </div>
-      </div>
-
-      {/* local helper */}
-      <style jsx global>{`
-        /* nothing */
-      `}</style>
-    
-      <UpgradeModal
+      </div>      <UpgradeModal
         open={showUpgrade}
         onClose={() => setShowUpgrade(false)}
         gumroadUrl={process.env.NEXT_PUBLIC_GUMROAD_URL}
