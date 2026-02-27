@@ -28,7 +28,7 @@ export default function UpgradeModal({
         <div className="mt-2 text-sm opacity-80">{subtitle}</div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <GlowButton href="/pro" variant="primary" className="w-full">
+          <GlowButton href="/pro" variant="solid" className="w-full">
             Go PRO
           </GlowButton>
 
