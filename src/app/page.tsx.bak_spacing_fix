@@ -1,0 +1,231 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import GlowButton from "@/components/GlowButton";
+import Reveal from "@/components/Reveal";
+
+export default function Home() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setLoggedIn(Boolean(data.session)));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setLoggedIn(Boolean(s)));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  return (
+    <main className="text-white">
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        {/* TOP BAR */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="font-extrabold tracking-tight">Challenge Killer™</div>
+
+          <div className="flex gap-4">
+            <a className="text-sm underline opacity-80 hover:opacity-100" href="/calculator">Free</a>
+            <a className="text-sm underline opacity-80 hover:opacity-100" href="/pro">PRO</a>
+            <a className="text-sm underline opacity-80 hover:opacity-100" href={loggedIn ? "/account" : "/login"}>
+              {loggedIn ? "Account" : "Login"}
+            </a>
+          </div>
+        </div>
+
+        {/* HERO */}
+        <Reveal delayMs={0}>
+        <div className="mt-14 grid md:grid-cols-2 gap-10 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs opacity-80">
+              <span className="h-2 w-2 rounded-full bg-white/60" />
+              Rule-trap simulator for prop firm evaluations
+            </div>
+
+            <h1 className="mt-5 text-5xl font-extrabold leading-tight">
+              Don’t “donate” another challenge fee to variance.
+            </h1>
+
+            <p className="mt-4 text-lg opacity-75">
+              A strategy can be profitable and still fail an evaluation because of daily loss limits and drawdown rules.
+              Run your numbers first.
+            </p>
+
+            <div className="mt-8 flex gap-4 flex-wrap">
+              <GlowButton href="/calculator">Run Free Pass Estimate</GlowButton>
+              <GlowButton href="/login" variant="ghost">
+                {loggedIn ? "Go to Account" : "Login to PRO"}
+              </GlowButton>
+            </div>
+
+            <div className="mt-4 text-xs opacity-60">
+              Educational tool only. Not financial advice.
+            </div>
+          </div>
+
+          {/* PRO CARD */}
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div className="text-sm opacity-70">PRO = Risk engine</div>
+            <ul className="mt-3 space-y-2 text-sm opacity-85 list-disc pl-5">
+              <li>Monte Carlo simulations (variance modeling)</li>
+              <li>Failure heatmap (which day you usually blow it)</li>
+              <li>Most common failure cause (daily loss vs drawdown)</li>
+              <li>Equity curve preview + key breach probabilities</li>
+            </ul>
+
+            <div className="mt-6 flex gap-3 flex-wrap">
+              <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external>
+                Go PRO (19€)
+              </GlowButton>
+              <GlowButton href="/pro" variant="ghost">
+                View PRO page
+              </GlowButton>
+            </div>
+          </div>
+        </div>
+        </Reveal>
+
+        {/* WHAT YOU GET FAST */}
+        <Reveal delayMs={80}>
+        <Reveal delayMs={160}>
+        <div className="mt-24">
+          <h2 className="text-3xl font-extrabold text-center">What you get in 60 seconds</h2>
+          <div className="mt-10 grid md:grid-cols-3 gap-8 text-center">
+            <Step
+              number="01"
+              title="Reality check"
+              desc="A fast pass-probability estimate based on your own stats and rules."
+            />
+            <Step
+              number="02"
+              title="Rule-trap exposure"
+              desc="See how daily loss + drawdown rules punish variance."
+            />
+            <Step
+              number="03"
+              title="A clear next move"
+              desc="Adjust risk/trades/day before you waste another evaluation fee."
+            />
+          </div>
+        </div>
+        </Reveal>
+
+        {/* WHY FAIL */}
+        <Reveal delayMs={120}>
+        <div className="mt-24 mx-auto max-w-3xl text-center">
+          <h2 className="text-3xl font-extrabold">Why traders actually fail</h2>
+          <div className="mt-6 grid gap-3 text-left">
+            <Bullet>They underestimate losing streak variance.</Bullet>
+            <Bullet>They ignore daily loss compounding after a bad start.</Bullet>
+            <Bullet>They overtrade to “make it back” and hit rule limits.</Bullet>
+          </div>
+
+          <div className="mt-10 flex justify-center gap-4 flex-wrap">
+            <GlowButton href="/calculator">Run Free Estimate</GlowButton>
+            <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external variant="ghost">
+              Go PRO (19€)
+            </GlowButton>
+          </div>
+        </div>
+        </Reveal>
+
+        {/* FREE VS PRO */}
+        <div className="mt-24">
+          <h2 className="text-3xl font-extrabold text-center">Free vs PRO</h2>
+
+          <div className="mt-10 overflow-x-auto rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="py-4 px-5">Feature</th>
+                  <th className="py-4 px-5">Free</th>
+                  <th className="py-4 px-5">PRO</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                <Row feature="Quick pass estimate" free="✓" pro="✓" />
+                <Row feature="Daily loss breach probability" free="—" pro="✓" />
+                <Row feature="Max drawdown breach probability" free="—" pro="✓" />
+                <Row feature="Failure heatmap (by day)" free="—" pro="✓" />
+                <Row feature="Common failure cause" free="—" pro="✓" />
+                <Row feature="Equity curve preview" free="—" pro="✓" />
+              </tbody>
+            </table>
+          </div>
+        </div>
+        </Reveal>
+
+        {/* FINAL CTA */}
+        <Reveal delayMs={200}>
+        <div className="mt-24 text-center">
+          <h2 className="text-3xl font-extrabold">Before you buy another challenge…</h2>
+          <p className="mt-4 opacity-75">Run the simulation first.</p>
+
+          <div className="mt-8 flex justify-center gap-4 flex-wrap">
+            <GlowButton href="/calculator">Run Free Estimate</GlowButton>
+            <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external variant="ghost">
+              Go PRO (19€)
+            </GlowButton>
+          </div>
+        </div>
+        </Reveal>
+      </div>
+    
+      {/* Mini FAQ */}
+      <section className="mx-auto mt-24 max-w-3xl px-6">
+        <h2 className="mb-8 text-center text-3xl font-extrabold">
+          Frequently Asked Questions
+        </h2>
+
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div className="font-bold">Is this financial advice?</div>
+            <div className="mt-2 text-sm opacity-80">
+              No. This is a statistical simulation tool. It models probability and variance — not signals.
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div className="font-bold">Does this work for my prop firm?</div>
+            <div className="mt-2 text-sm opacity-80">
+              Yes. Enter your firm's exact rules (daily loss, max drawdown, target). The model adapts to any rule structure.
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div className="font-bold">Do I need to be profitable?</div>
+            <div className="mt-2 text-sm opacity-80">
+              Not necessarily. The tool shows whether your current risk profile statistically survives — even with variance.
+            </div>
+          </div>
+        </div>
+      </section>
+
+</main>
+  );
+}
+
+function Step({ number, title, desc }: any) {
+  return (
+    <div>
+      <div className="text-5xl font-extrabold opacity-20">{number}</div>
+      <div className="mt-4 text-xl font-bold">{title}</div>
+      <div className="mt-2 text-sm opacity-70">{desc}</div>
+    </div>
+  );
+}
+
+function Bullet({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+      <div className="text-sm opacity-85">{children}</div>
+    </div>
+  );
+}
+
+function Row({ feature, free, pro }: any) {
+  return (
+    <tr className="border-b border-white/5">
+      <td className="py-4 px-5">{feature}</td>
+      <td className="py-4 px-5">{free}</td>
+      <td className="py-4 px-5">{pro}</td>
+    </tr>
+  );
+}
