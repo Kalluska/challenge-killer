@@ -1,3 +1,4 @@
+import "@/lib/repeatSafe";
 import "./globals.css";
 import GlowBackground from "@/components/GlowBackground";
 import PageTransition from "@/components/PageTransition";
