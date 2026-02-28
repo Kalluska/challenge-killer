@@ -281,15 +281,15 @@ async function saveProRun(inputs: any, outputs: any) {
         .single();
 
       if (error || !data) return;            const inp = data.inputs ?? {};
-            // (no setter found for inp.account â€” skipped)
-            // (no setter found for inp.target â€” skipped)
-            // (no setter found for inp.dailyLoss â€” skipped)
-            // (no setter found for inp.maxDd â€” skipped)
-            // (no setter found for inp.riskPerTrade â€” skipped)
-            // (no setter found for inp.winrate â€” skipped)
-            // (no setter found for inp.rr â€” skipped)
-            // (no setter found for inp.tradesPerDay â€” skipped)
-            // (no setter found for inp.days â€” skipped)
+            // (no setter found for inp.account — skipped)
+            // (no setter found for inp.target — skipped)
+            // (no setter found for inp.dailyLoss — skipped)
+            // (no setter found for inp.maxDd — skipped)
+            // (no setter found for inp.riskPerTrade — skipped)
+            // (no setter found for inp.winrate — skipped)
+            // (no setter found for inp.rr — skipped)
+            // (no setter found for inp.tradesPerDay — skipped)
+            // (no setter found for inp.days — skipped)
 
       setToast("ðŸ“Œ Loaded saved run");
       setTimeout(() => setToast(null), 1500);
@@ -371,8 +371,9 @@ useEffect(() => {
         <button
           onClick={async () => {
             setSaveMsg("");
+      setToastMsg('Run saved');
+      setToastOpen(true);
             if (!lastInputs || !lastOutputs) {
-              setSaveMsg("Run a simulation first.");
               return;
             }
             await saveProRun(lastInputs, lastOutputs);
@@ -405,7 +406,7 @@ setTimeout(() => setSaveMsg(""), 2500);
             </div>
           </div>
 
-          <h1 className="text-3xl font-extrabold">Challenge Killer? PRO</h1>
+          <h1 className="text-3xl font-extrabold">Challenge Killer™ PRO</h1>
           <p className="opacity-70 mt-1">
             Monte Carlo risk engine (daily loss + drawdown) + equity curve preview.
           </p>
@@ -421,17 +422,17 @@ setTimeout(() => setSaveMsg(""), 2500);
 
         {loadingAccess ? (
           <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className="text-sm opacity-70">Checking accessâ€¦</div>
+            <div className="text-sm opacity-70">Checking access…</div>
           </div>
         ) : !unlocked ? (
           <div className="mt-8 max-w-2xl rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
             <div className="text-xl font-extrabold">PRO is locked</div>
             <p className="mt-2 opacity-80">
-              Buy PRO on Gumroad. After purchase youâ€™ll be redirected back here and unlocked automatically.
+              Buy PRO on Gumroad. After purchase you’ll be redirected back here and unlocked automatically.
             </p>
             <div className="mt-5 flex gap-3 flex-wrap">
               <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external>
-                Buy PRO (19â‚¬) on Gumroad
+                Buy PRO (19€) on Gumroad
               </GlowButton>
               <GlowButton href="/login" variant="ghost">
                 Login (optional)
@@ -482,14 +483,14 @@ setTimeout(() => setSaveMsg(""), 2500);
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
                 <div className="text-sm opacity-70">Pass Probability</div>
                 <div className="mt-2 text-5xl font-extrabold">
-                  {result ? `${Math.round(result.passProb * 100)}%` : "â€¦"}
+                  {result ? `${Math.round(result.passProb * 100)}%` : "…"}
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
-                  <Mini title="Daily loss breach" value={result ? `${Math.round(result.dailyLossBreachProb * 100)}%` : "â€”"} />
-                  <Mini title="Max DD breach" value={result ? `${Math.round(result.maxDdBreachProb * 100)}%` : "â€”"} />
-                  <Mini title="Avg fail day" value={result ? `${result.avgFailDay.toFixed(1)}` : "â€”"} />
-                  <Mini title="Runs" value={result ? `${simCount}` : "â€”"} />
+                  <Mini title="Daily loss breach" value={result ? `${Math.round(result.dailyLossBreachProb * 100)}%` : "—"} />
+                  <Mini title="Max DD breach" value={result ? `${Math.round(result.maxDdBreachProb * 100)}%` : "—"} />
+                  <Mini title="Avg fail day" value={result ? `${result.avgFailDay.toFixed(1)}` : "—"} />
+                  <Mini title="Runs" value={result ? `${simCount}` : "—"} />
                 </div>
 
                 <div className="mt-4 text-xs opacity-60">

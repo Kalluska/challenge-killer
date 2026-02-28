@@ -87,7 +87,7 @@ const [winrate, setWinrate] = useState<number | "">(45);
       return {
         title: "Reality check: unstable",
         body:
-          "You may pass â€” but variance is dangerous. One losing streak can violate daily loss rules. " +
+          "You may pass — but variance is dangerous. One losing streak can violate daily loss rules. " +
           "PRO shows the exact failure paths and how to adjust.",
       };
     }
@@ -190,7 +190,7 @@ return (
               </div>
               <div className="mt-2 text-sm opacity-80">{reality.body}</div>
               <div className="mt-2 text-xs opacity-60">
-                Most evaluation failures happen early (Day 1â€“5) from variance + rule breaks.
+                Most evaluation failures happen early (Day 1–5) from variance + rule breaks.
               </div>
             </div>
 
