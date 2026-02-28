@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useMemo, useState } from "react";
 import GlowButton from "@/components/GlowButton";
 import Toast from "@/components/Toast";
@@ -87,7 +87,7 @@ const [winrate, setWinrate] = useState<number | "">(45);
       return {
         title: "Reality check: unstable",
         body:
-          "You may pass — but variance is dangerous. One losing streak can violate daily loss rules. " +
+          "You may pass â€” but variance is dangerous. One losing streak can violate daily loss rules. " +
           "PRO shows the exact failure paths and how to adjust.",
       };
     }
@@ -135,7 +135,7 @@ const [winrate, setWinrate] = useState<number | "">(45);
             outputs: { ...currentOutputs, source: "free" },
           });
           localStorage.setItem(FREE_SAVE_KEY, "1");
-          setSaveMsg("Saved to your account ✅ (1 free save used)");
+          setSaveMsg("Saved to your account âœ… (1 free save used)");
           return;
         }
       } catch {
@@ -144,7 +144,7 @@ const [winrate, setWinrate] = useState<number | "">(45);
 
       localStorage.setItem("ck_free_saved_run_v1", JSON.stringify({ inputs: currentInputs, outputs: currentOutputs }));
       localStorage.setItem(FREE_SAVE_KEY, "1");
-      setSaveMsg("Saved locally ✅ (1 free save used)");
+      setSaveMsg("Saved locally âœ… (1 free save used)");
     } catch {
       setSaveMsg("Save failed.");
     }
@@ -190,7 +190,7 @@ return (
               </div>
               <div className="mt-2 text-sm opacity-80">{reality.body}</div>
               <div className="mt-2 text-xs opacity-60">
-                Most evaluation failures happen early (Day 1–5) from variance + rule breaks.
+                Most evaluation failures happen early (Day 1â€“5) from variance + rule breaks.
               </div>
             </div>
 
@@ -240,8 +240,8 @@ return (
       />
   <Toast
     message={toastMsg}
-    show={toastOpen}
-    onDone={() => {
+    open={toastOpen}
+    onClose={() => {
       setToastOpen(false);
       setToastMsg(null);
     }}
@@ -311,3 +311,4 @@ function KpiBox({ title, value, desc }: { title: string; value: any; desc: strin
     </div>
   );
 }
+

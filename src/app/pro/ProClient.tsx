@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import GlowButton from "@/components/GlowButton";
@@ -281,17 +281,17 @@ async function saveProRun(inputs: any, outputs: any) {
         .single();
 
       if (error || !data) return;            const inp = data.inputs ?? {};
-            // (no setter found for inp.account — skipped)
-            // (no setter found for inp.target — skipped)
-            // (no setter found for inp.dailyLoss — skipped)
-            // (no setter found for inp.maxDd — skipped)
-            // (no setter found for inp.riskPerTrade — skipped)
-            // (no setter found for inp.winrate — skipped)
-            // (no setter found for inp.rr — skipped)
-            // (no setter found for inp.tradesPerDay — skipped)
-            // (no setter found for inp.days — skipped)
+            // (no setter found for inp.account â€” skipped)
+            // (no setter found for inp.target â€” skipped)
+            // (no setter found for inp.dailyLoss â€” skipped)
+            // (no setter found for inp.maxDd â€” skipped)
+            // (no setter found for inp.riskPerTrade â€” skipped)
+            // (no setter found for inp.winrate â€” skipped)
+            // (no setter found for inp.rr â€” skipped)
+            // (no setter found for inp.tradesPerDay â€” skipped)
+            // (no setter found for inp.days â€” skipped)
 
-      setToast("📌 Loaded saved run");
+      setToast("ðŸ“Œ Loaded saved run");
       setTimeout(() => setToast(null), 1500);
     })();
   }, [runId]);
@@ -376,7 +376,7 @@ useEffect(() => {
               return;
             }
             await saveProRun(lastInputs, lastOutputs);
-            setSaveMsg("Saved ✅");
+            setSaveMsg("Saved âœ…");
             setTimeout(() => setSaveMsg(""), 2500);
           }}
           className="rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-xl hover:bg-white/15 transition"
@@ -387,7 +387,7 @@ useEffect(() => {
       {claimedBanner && (
         <div className="fixed left-1/2 top-6 z-50 -translate-x-1/2">
           <div className="rounded-2xl border border-white/15 bg-black/80 px-5 py-3 text-sm backdrop-blur-xl shadow-[0_0_40px_rgba(255,255,255,0.08)]">
-            <div className="font-extrabold">✅ PRO Activated</div>
+            <div className="font-extrabold">âœ… PRO Activated</div>
             <div className="text-xs opacity-70">Your purchase was linked to your account.</div>
           </div>
         </div>
@@ -403,7 +403,7 @@ useEffect(() => {
             </div>
           </div>
 
-          <h1 className="text-3xl font-extrabold">Challenge Killer™ PRO</h1>
+          <h1 className="text-3xl font-extrabold">Challenge Killerâ„¢ PRO</h1>
           <p className="opacity-70 mt-1">
             Monte Carlo risk engine (daily loss + drawdown) + equity curve preview.
           </p>
@@ -419,17 +419,17 @@ useEffect(() => {
 
         {loadingAccess ? (
           <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className="text-sm opacity-70">Checking access…</div>
+            <div className="text-sm opacity-70">Checking accessâ€¦</div>
           </div>
         ) : !unlocked ? (
           <div className="mt-8 max-w-2xl rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
             <div className="text-xl font-extrabold">PRO is locked</div>
             <p className="mt-2 opacity-80">
-              Buy PRO on Gumroad. After purchase you’ll be redirected back here and unlocked automatically.
+              Buy PRO on Gumroad. After purchase youâ€™ll be redirected back here and unlocked automatically.
             </p>
             <div className="mt-5 flex gap-3 flex-wrap">
               <GlowButton href="https://challengekiller.gumroad.com/l/mijmrn" external>
-                Buy PRO (19€) on Gumroad
+                Buy PRO (19â‚¬) on Gumroad
               </GlowButton>
               <GlowButton href="/login" variant="ghost">
                 Login (optional)
@@ -480,14 +480,14 @@ useEffect(() => {
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
                 <div className="text-sm opacity-70">Pass Probability</div>
                 <div className="mt-2 text-5xl font-extrabold">
-                  {result ? `${Math.round(result.passProb * 100)}%` : "…"}
+                  {result ? `${Math.round(result.passProb * 100)}%` : "â€¦"}
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
-                  <Mini title="Daily loss breach" value={result ? `${Math.round(result.dailyLossBreachProb * 100)}%` : "—"} />
-                  <Mini title="Max DD breach" value={result ? `${Math.round(result.maxDdBreachProb * 100)}%` : "—"} />
-                  <Mini title="Avg fail day" value={result ? `${result.avgFailDay.toFixed(1)}` : "—"} />
-                  <Mini title="Runs" value={result ? `${simCount}` : "—"} />
+                  <Mini title="Daily loss breach" value={result ? `${Math.round(result.dailyLossBreachProb * 100)}%` : "â€”"} />
+                  <Mini title="Max DD breach" value={result ? `${Math.round(result.maxDdBreachProb * 100)}%` : "â€”"} />
+                  <Mini title="Avg fail day" value={result ? `${result.avgFailDay.toFixed(1)}` : "â€”"} />
+                  <Mini title="Runs" value={result ? `${simCount}` : "â€”"} />
                 </div>
 
                 <div className="mt-4 text-xs opacity-60">
@@ -518,7 +518,7 @@ useEffect(() => {
                         : "Max drawdown"}
                     </div>
                     <div className="mt-1 text-xs opacity-60">
-                      Daily: {result.failCauseCounts.daily} • DD: {result.failCauseCounts.dd}
+                      Daily: {result.failCauseCounts.daily} â€¢ DD: {result.failCauseCounts.dd}
                     </div>
                   </div>
 
@@ -558,7 +558,7 @@ useEffect(() => {
               </div>
             )}
 <div className="mt-6 text-xs opacity-60">
-              Logged in as: <span className="opacity-90">{sessionEmail ?? "not logged in"}</span> • Whitelist:{" "}
+              Logged in as: <span className="opacity-90">{sessionEmail ?? "not logged in"}</span> â€¢ Whitelist:{" "}
               <span className="opacity-90">{isWhitelisted ? "YES" : "NO"}</span>
             </div>
           </>
@@ -574,8 +574,8 @@ useEffect(() => {
   )}
   <Toast
     message={toastMsg}
-    show={toastOpen}
-    onDone={() => {
+    open={toastOpen}
+    onClose={() => {
       setToastOpen(false);
       setToastMsg(null);
     }}
@@ -761,3 +761,4 @@ function EquityChart({ values }: { values: number[] }) {
     </div>
   );
 }
+
