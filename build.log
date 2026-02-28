@@ -13,191 +13,24 @@
 - Environments: .env.local
 
   Creating an optimized production build ...
-
-> Build error occurred
-Error: Turbopack build failed with 11 errors:
-./challenge-killer/src/app/account/page.tsx:3:1
-Ecmascript file had an error
-[0m [90m 1 |[39m [36mexport[39m [36mconst[39m dynamic [33m=[39m [32m"force-dynamic"[39m[33m;[39m
- [90m 2 |[39m
-[31m[1m>[22m[39m[90m 3 |[39m [32m"use client"[39m[33m;[39m
- [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 4 |[39m
- [90m 5 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
- [90m 6 |[39m [36mimport[39m { supabase } [36mfrom[39m [32m"@/lib/supabase"[39m[33m;[39m[0m
-
-The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
-
-
-./challenge-killer/src/app/account/page.tsx:5:10
-Ecmascript file had an error
-[0m [90m 3 |[39m [32m"use client"[39m[33m;[39m
- [90m 4 |[39m
-[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
- [90m   |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 6 |[39m [36mimport[39m { supabase } [36mfrom[39m [32m"@/lib/supabase"[39m[33m;[39m
- [90m 7 |[39m [36mimport[39m [33mGlowButton[39m [36mfrom[39m [32m"@/components/GlowButton"[39m[33m;[39m
- [90m 8 |[39m[0m
-
-You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
-
- Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
-
-
-
-
-./challenge-killer/src/app/account/page.tsx:5:21
-Ecmascript file had an error
-[0m [90m 3 |[39m [32m"use client"[39m[33m;[39m
- [90m 4 |[39m
-[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
- [90m   |[39m                     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 6 |[39m [36mimport[39m { supabase } [36mfrom[39m [32m"@/lib/supabase"[39m[33m;[39m
- [90m 7 |[39m [36mimport[39m [33mGlowButton[39m [36mfrom[39m [32m"@/components/GlowButton"[39m[33m;[39m
- [90m 8 |[39m[0m
-
-You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
-
- Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
-
-
-
-
-./challenge-killer/src/app/login/page.tsx:3:1
-Ecmascript file had an error
-[0m [90m 1 |[39m [36mexport[39m [36mconst[39m dynamic [33m=[39m [32m"force-dynamic"[39m[33m;[39m
- [90m 2 |[39m
-[31m[1m>[22m[39m[90m 3 |[39m [32m"use client"[39m[33m;[39m
- [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 4 |[39m
- [90m 5 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
- [90m 6 |[39m [36mimport[39m { supabase } [36mfrom[39m [32m"@/lib/supabase"[39m[33m;[39m[0m
-
-The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
-
-
-./challenge-killer/src/app/login/page.tsx:5:10
-Ecmascript file had an error
-[0m [90m 3 |[39m [32m"use client"[39m[33m;[39m
- [90m 4 |[39m
-[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
- [90m   |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 6 |[39m [36mimport[39m { supabase } [36mfrom[39m [32m"@/lib/supabase"[39m[33m;[39m
- [90m 7 |[39m
- [90m 8 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mLoginPage[39m() {[0m
-
-You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
-
- Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
-
-
-
-
-./challenge-killer/src/app/login/page.tsx:5:21
-Ecmascript file had an error
-[0m [90m 3 |[39m [32m"use client"[39m[33m;[39m
- [90m 4 |[39m
-[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
- [90m   |[39m                     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 6 |[39m [36mimport[39m { supabase } [36mfrom[39m [32m"@/lib/supabase"[39m[33m;[39m
- [90m 7 |[39m
- [90m 8 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mLoginPage[39m() {[0m
-
-You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
-
- Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
-
-
-
-
-./challenge-killer/src/app/page.tsx:3:1
-Ecmascript file had an error
-[0m [90m 1 |[39m [36mexport[39m [36mconst[39m dynamic [33m=[39m [32m"force-dynamic"[39m[33m;[39m
- [90m 2 |[39m
-[31m[1m>[22m[39m[90m 3 |[39m [32m"use client"[39m[33m;[39m
- [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 4 |[39m
- [90m 5 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
- [90m 6 |[39m [36mimport[39m { supabase } [36mfrom[39m [32m"@/lib/supabase"[39m[33m;[39m[0m
-
-The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
-
-
-./challenge-killer/src/app/page.tsx:5:10
-Ecmascript file had an error
-[0m [90m 3 |[39m [32m"use client"[39m[33m;[39m
- [90m 4 |[39m
-[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
- [90m   |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 6 |[39m [36mimport[39m { supabase } [36mfrom[39m [32m"@/lib/supabase"[39m[33m;[39m
- [90m 7 |[39m [36mimport[39m [33mGlowButton[39m [36mfrom[39m [32m"@/components/GlowButton"[39m[33m;[39m
- [90m 8 |[39m [36mimport[39m [33mReveal[39m [36mfrom[39m [32m"@/components/Reveal"[39m[33m;[39m[0m
-
-You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
-
- Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
-
-
-
-
-./challenge-killer/src/app/page.tsx:5:21
-Ecmascript file had an error
-[0m [90m 3 |[39m [32m"use client"[39m[33m;[39m
- [90m 4 |[39m
-[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
- [90m   |[39m                     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 6 |[39m [36mimport[39m { supabase } [36mfrom[39m [32m"@/lib/supabase"[39m[33m;[39m
- [90m 7 |[39m [36mimport[39m [33mGlowButton[39m [36mfrom[39m [32m"@/components/GlowButton"[39m[33m;[39m
- [90m 8 |[39m [36mimport[39m [33mReveal[39m [36mfrom[39m [32m"@/components/Reveal"[39m[33m;[39m[0m
-
-You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
-
- Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
-
-
-
-
-./challenge-killer/src/app/calculator/page.tsx:218:27
-Parsing ecmascript source code failed
-[0m [90m 216 |[39m                   onClick[33m=[39m{() [33m=>[39m handleSaveRun(
- [90m 217 |[39m                     { winrate[33m,[39m rr[33m,[39m risk[33m:[39m risk[33m,[39m dailyLoss[33m:[39m dailyLoss }[33m,[39m
-[31m[1m>[22m[39m[90m 218 |[39m                     { [33mMath[39m[33m.[39mround(score)[33m:[39m [33mMath[39m[33m.[39mround(score)[33m,[39m lossesToDaily[33m:[39m lossesToDaily[33m,[39m expectedLosingStreak }
- [90m     |[39m                           [31m[1m^[22m[39m
- [90m 219 |[39m                   )}
- [90m 220 |[39m                   className[33m=[39m[32m"rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold hover:bg-white/15 transition"[39m
- [90m 221 |[39m                 [33m>[39m[0m
-
-Expected a semicolon
-
-
-./challenge-killer/src/app/pro/ProClient.tsx:373:17
-Parsing ecmascript source code failed
-[0m [90m 371 |[39m             [33m>[39m[33mPRO[39m
- [90m 372 |[39m             {saveMsg [33m&&[39m [33m<[39m[33mdiv[39m className[33m=[39m[32m"mt-2 text-xs opacity-70"[39m[33m>[39m{saveMsg}[33m<[39m[33m/[39m[33mdiv[39m[33m>[39m}
-[31m[1m>[22m[39m[90m 373 |[39m           [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
- [90m     |[39m                 [31m[1m^[22m[39m
-[31m[1m>[22m[39m[90m 374 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"text-3xl font-extrabold>Challenge Killer™ PRO</h1>[39m
- [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 375 |[39m             [33m<[39m[33mp[39m className[33m=[39m[32m"opacity-70 mt-1"[39m[33m>[39m
- [90m 376 |[39m               [33mMonte[39m [33mCarlo[39m risk engine (daily loss [33m+[39m drawdown) [33m+[39m equity curve preview[33m.[39m
- [90m 377 |[39m             [33m<[39m[33m/[39m[33mp[39m[33m>[39m[0m
-
-Expected '</', got 'jsx text'
-
-Import trace:
-  Server Component:
-    ./challenge-killer/src/app/pro/ProClient.tsx
-    ./challenge-killer/src/app/pro/page.tsx
-
-
-    at <unknown> (./challenge-killer/src/app/account/page.tsx:3:1)
-    at <unknown> (./challenge-killer/src/app/account/page.tsx:5:10)
-    at <unknown> (./challenge-killer/src/app/account/page.tsx:5:21)
-    at <unknown> (./challenge-killer/src/app/login/page.tsx:3:1)
-    at <unknown> (./challenge-killer/src/app/login/page.tsx:5:10)
-    at <unknown> (./challenge-killer/src/app/login/page.tsx:5:21)
-    at <unknown> (./challenge-killer/src/app/page.tsx:3:1)
-    at <unknown> (./challenge-killer/src/app/page.tsx:5:10)
-    at <unknown> (./challenge-killer/src/app/page.tsx:5:21)
-    at <unknown> (./challenge-killer/src/app/calculator/page.tsx:218:27)
-    at <unknown> (./challenge-killer/src/app/pro/ProClient.tsx:373:17)
+✓ Compiled successfully in 2.7s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/10) ...
+  Generating static pages using 7 workers (2/10) 
+Error occurred prerendering page "/account". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: supabaseUrl is required.
+    at <unknown> (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\challenge-killer_src_lib_supabase_ts_20a5d2b0._.js:37:43440)
+    at new ce (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\challenge-killer_src_lib_supabase_ts_20a5d2b0._.js:37:43691)
+    at module evaluation (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\challenge-killer_src_lib_supabase_ts_20a5d2b0._.js:37:48029)
+    at instantiateModule (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:763:12)
+    at Context.esmImport [as i] (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:228:20)
+    at module evaluation (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\challenge-killer_src_app_account_page_tsx_a61cb644._.js:1:73)
+    at instantiateModule (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:763:12)
+    at Context.commonJsRequire [as r] (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:249:12) {
+  digest: '1747736851'
+}
+Export encountered an error on /account/page: /account, exiting the build.
+⨯ Next.js build worker exited with code: 1 and signal: null

@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import GlowButton from "@/components/GlowButton";
+import Toast from "@/components/Toast";
 import { supabase } from "@/lib/supabase";
 
 const LS_KEY = "ck_pro_unlocked_redirect_v2";
@@ -233,6 +234,8 @@ export default function ProPage() {
   const runId = searchParams.get("run");
 
   const [saveMsg, setSaveMsg] = useState<string>("");
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [toastOpen, setToastOpen] = useState(false);
 async function saveProRun(inputs: any, outputs: any) {
     try {
       const { data } = await supabase.auth.getSession();
@@ -569,6 +572,14 @@ useEffect(() => {
       </div>
     </div>
   )}
+  <Toast
+    message={toastMsg}
+    show={toastOpen}
+    onDone={() => {
+      setToastOpen(false);
+      setToastMsg(null);
+    }}
+  />
 </main>
   );
 }

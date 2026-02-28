@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import GlowButton from "@/components/GlowButton";
+import Toast from "@/components/Toast";
 import UpgradeModal from "@/components/UpgradeModal";
 import { supabase } from "@/lib/supabase";
 
@@ -30,6 +31,8 @@ function cleanNumberInput(raw: string) {
 const FREE_SAVE_KEY = "ck_free_save_used_v1";
 
 export default function Calculator() {
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [toastOpen, setToastOpen] = useState(false);
   
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string>("");
@@ -235,6 +238,14 @@ return (
         onClose={() => setShowUpgrade(false)}
         gumroadUrl={process.env.NEXT_PUBLIC_GUMROAD_URL}
       />
+  <Toast
+    message={toastMsg}
+    show={toastOpen}
+    onDone={() => {
+      setToastOpen(false);
+      setToastMsg(null);
+    }}
+  />
 </main>
   );
 
