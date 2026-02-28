@@ -377,7 +377,9 @@ useEffect(() => {
             }
             await saveProRun(lastInputs, lastOutputs);
             setSaveMsg("Saved âœ…");
-            setTimeout(() => setSaveMsg(""), 2500);
+            setToastMsg('Run saved');
+      setToastOpen(true);
+setTimeout(() => setSaveMsg(""), 2500);
           }}
           className="rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-xl hover:bg-white/15 transition"
         >
@@ -403,7 +405,7 @@ useEffect(() => {
             </div>
           </div>
 
-          <h1 className="text-3xl font-extrabold">Challenge Killerâ„¢ PRO</h1>
+          <h1 className="text-3xl font-extrabold">Challenge Killer? PRO</h1>
           <p className="opacity-70 mt-1">
             Monte Carlo risk engine (daily loss + drawdown) + equity curve preview.
           </p>
