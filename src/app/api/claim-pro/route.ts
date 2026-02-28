@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const email = String(body?.email || "").trim().toLowerCase();
+    const email = String(body.email || "").trim().toLowerCase();
 
     if (!email || !email.includes("@")) {
       return NextResponse.json({ ok: false, error: "Missing email" }, { status: 400 });
@@ -32,6 +32,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message || String(e) }, { status: 500 });
+    return NextResponse.json({ ok: false, error: e.message || String(e) }, { status: 500 });
   }
 }

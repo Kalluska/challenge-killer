@@ -3,9 +3,9 @@
 type Props = {
   href: string;
   children: React.ReactNode;
-  external?: boolean;
-  variant?: "solid" | "ghost";
-  className?: string;
+  external: boolean;
+  variant: "solid" | "ghost";
+  className: string;
 };
 
 export default function GlowButton({
@@ -25,14 +25,14 @@ export default function GlowButton({
   const ghost =
     "border border-white/20 text-white hover:bg-white/10 hover:shadow-[0_0_30px_rgba(255,255,255,0.15)]";
 
-  const cls = `${base} ${variant === "solid" ? solid : ghost} ${className}`;
+  const cls = `${base} ${variant === "solid"  solid : ghost} ${className}`;
 
   return (
     <a
       href={href}
       className={cls}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noreferrer" : undefined}
+      target={external  "_blank" : undefined}
+      rel={external  "noreferrer" : undefined}
     >
       {children}
     </a>

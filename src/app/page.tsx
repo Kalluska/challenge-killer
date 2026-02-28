@@ -24,8 +24,8 @@ export default function Home() {
           <div className="flex gap-4">
             <a className="text-sm underline opacity-80 hover:opacity-100" href="/calculator">Free</a>
             <a className="text-sm underline opacity-80 hover:opacity-100" href="/pro">PRO</a>
-            <a className="text-sm underline opacity-80 hover:opacity-100" href={loggedIn ? "/account" : "/login"}>
-              {loggedIn ? "Account" : "Login"}
+            <a className="text-sm underline opacity-80 hover:opacity-100" href={loggedIn  "/account" : "/login"}>
+              {loggedIn  "Account" : "Login"}
             </a>
           </div>
         </div>
@@ -51,7 +51,7 @@ export default function Home() {
             <div className="mt-8 flex gap-4 flex-wrap">
               <GlowButton href="/calculator">Run Free Pass Estimate</GlowButton>
               <GlowButton href="/login" variant="ghost">
-                {loggedIn ? "Go to Account" : "Login to PRO"}
+                {loggedIn  "Go to Account" : "Login to PRO"}
               </GlowButton>
             </div>
 
@@ -178,21 +178,21 @@ export default function Home() {
 
         <div className="space-y-6">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className="font-bold">Is this financial advice?</div>
+            <div className="font-bold">Is this financial advice</div>
             <div className="mt-2 text-sm opacity-80">
               No. This is a statistical simulation tool. It models probability and variance — not signals.
             </div>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className="font-bold">Does this work for my prop firm?</div>
+            <div className="font-bold">Does this work for my prop firm</div>
             <div className="mt-2 text-sm opacity-80">
               Yes. Enter your firm's exact rules (daily loss, max drawdown, target). The model adapts to any rule structure.
             </div>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className="font-bold">Do I need to be profitable?</div>
+            <div className="font-bold">Do I need to be profitable</div>
             <div className="mt-2 text-sm opacity-80">
               Not necessarily. The tool shows whether your current risk profile statistically survives — even with variance.
             </div>

@@ -11,9 +11,9 @@ export default function UpgradeModal({
 }: {
   open: boolean;
   onClose: () => void;
-  title?: string;
-  subtitle?: string;
-  gumroadUrl?: string;
+  title: string;
+  subtitle: string;
+  gumroadUrl: string;
 }) {
   if (!open) return null;
 
@@ -32,7 +32,7 @@ export default function UpgradeModal({
             Go PRO
           </GlowButton>
 
-          {gumroadUrl ? (
+          {gumroadUrl  (
             <a
               href={gumroadUrl}
               target="_blank"

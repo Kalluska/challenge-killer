@@ -50,7 +50,7 @@ export default function LoginPage() {
           disabled={!email.includes("@")}
           className="mt-4 w-full rounded-xl bg-white py-3 font-extrabold text-black disabled:opacity-50"
         >
-          {sent ? "Resend magic link" : "Send magic link"}
+          {sent  "Resend magic link" : "Send magic link"}
         </button>
 
         {msg && <div className="mt-3 text-sm opacity-80">{msg}</div>}

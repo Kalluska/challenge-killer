@@ -10,7 +10,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      setEmail(data.user?.email ?? null);
+      setEmail(data.user.email  null);
     });
   }, []);
 
@@ -18,7 +18,7 @@ export default function AccountPage() {
     <main className="min-h-screen bg-black text-white px-6 py-10">
       <div className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl">
         <div className="text-3xl font-extrabold mb-6">Account</div>
-        {email ? (
+        {email  (
           <div className="opacity-80">Logged in as {email}</div>
         ) : (
           <div className="opacity-60">Not logged in</div>

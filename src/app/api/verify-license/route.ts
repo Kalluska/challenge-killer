@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const resp = await fetch(url.toString(), { method: "GET" });
     const data = await resp.json();
 
-    if (!data?.success) {
+    if (!data.success) {
       return NextResponse.json({ ok: false, error: "Invalid key" }, { status: 200 });
     }
 

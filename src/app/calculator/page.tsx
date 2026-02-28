@@ -18,14 +18,14 @@ function cleanNumberInput(raw: string) {
   if (s === "") return "";
 
   const parts = s.split(".");
-  let intPart = parts[0] ?? "";
+  let intPart = parts[0]  "";
   const decPart = parts[1];
 
   // Strip leading zeros but keep single "0"
-  intPart = intPart.replace(/^0+(?=\d)/, "");
+  intPart = intPart.replace(/^0+(=\d)/, "");
   if (intPart === "") intPart = "0";
 
-  return decPart !== undefined ? `${intPart}.${decPart}` : intPart;
+  return decPart !== undefined  `${intPart}.${decPart}` : intPart;
 }
 
 const FREE_SAVE_KEY = "ck_free_save_used_v1";
@@ -41,10 +41,10 @@ const [winrate, setWinrate] = useState<number | "">(45);
   const [risk, setRisk] = useState<number | "">(1);
   const [dailyLoss, setDailyLoss] = useState<number | "">(4);
 
-  const safeWinrate = typeof winrate === "number" ? winrate : 0;
-  const safeRr = typeof rr === "number" ? rr : 0;
-  const safeRisk = typeof risk === "number" ? risk : 0.1;
-  const safeDaily = typeof dailyLoss === "number" ? dailyLoss : 0;
+  const safeWinrate = typeof winrate === "number"  winrate : 0;
+  const safeRr = typeof rr === "number"  rr : 0;
+  const safeRisk = typeof risk === "number"  risk : 0.1;
+  const safeDaily = typeof dailyLoss === "number"  dailyLoss : 0;
 
   const expectancy = (safeWinrate / 100) * safeRr - (1 - safeWinrate / 100);
 
@@ -70,8 +70,8 @@ const [winrate, setWinrate] = useState<number | "">(45);
   }, [score]);
 
   const verdictColor =
-    riskTier === "danger" ? "text-red-500" :
-    riskTier === "warn" ? "text-yellow-400" :
+    riskTier === "danger"  "text-red-500" :
+    riskTier === "warn"  "text-yellow-400" :
     "text-green-400";
 
   const reality = useMemo(() => {
@@ -101,16 +101,16 @@ const [winrate, setWinrate] = useState<number | "">(45);
 
   const dangerCardClass =
     riskTier === "danger"
-      ? "border-red-500/30 bg-red-500/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]"
+       "border-red-500/30 bg-red-500/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]"
       : riskTier === "warn"
-      ? "border-yellow-400/20 bg-yellow-400/5"
+       "border-yellow-400/20 bg-yellow-400/5"
       : "border-white/10 bg-black/30";
 
   const dangerDotClass =
     riskTier === "danger"
-      ? "bg-red-500 animate-pulse"
+       "bg-red-500 animate-pulse"
       : riskTier === "warn"
-      ? "bg-yellow-400"
+       "bg-yellow-400"
       : "bg-green-400";
 
   
@@ -126,7 +126,7 @@ const [winrate, setWinrate] = useState<number | "">(45);
       // Try save to account if logged in; otherwise save locally (still counts as the one free save)
       try {
         const { data } = await supabase.auth.getSession();
-        const u = data.session?.user;
+        const u = data.session.user;
         if (u) {
           await supabase.from("pro_runs").insert({
             user_id: u.id,
@@ -212,7 +212,7 @@ return (
 
   <button
     onClick={() => handleSaveRun(
-      { winrate, rr, riskPerTrade: (typeof risk === "number" ? risk : 0), dailyLossLimit: (typeof dailyLoss === "number" ? dailyLoss : 0) },
+      { winrate, rr, riskPerTrade: (typeof risk === "number"  risk : 0), dailyLossLimit: (typeof dailyLoss === "number"  dailyLoss : 0) },
       { survivalProbability: Math.round(score), lossesToDailyKill: lossesToDaily, expectedLosingStreak }
     )}
     className="rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold hover:bg-white/15 transition"
@@ -264,7 +264,7 @@ return (
         <input
           type="text"
           inputMode="decimal"
-          value={value === "" ? "" : String(value)}
+          value={value === ""  "" : String(value)}
           onChange={(e) => {
             const cleaned = cleanNumberInput(e.target.value);
             if (cleaned === "") return setValue("");
@@ -290,7 +290,7 @@ function HelpTip({ text }: { text: string }) {
         tabIndex={0}
         aria-label="Help"
       >
-        ?
+        
       </span>
       <span
         className="pointer-events-none absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-white/10 bg-black/90 p-3 text-xs leading-relaxed text-white/90

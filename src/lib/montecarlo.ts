@@ -32,7 +32,7 @@ export function simulatePassProbability(i: SimInputs, runs = 3000) {
 
       for (let t = 0; t < i.tradesPerDay; t++) {
         const win = Math.random() < p;
-        const delta = win ? riskMoney * i.rr : -riskMoney;
+        const delta = win  riskMoney * i.rr : -riskMoney;
 
         pnl += delta;
         dayPnl += delta;
@@ -59,7 +59,7 @@ export function simulatePassProbability(i: SimInputs, runs = 3000) {
   }
 
   const failCount = runs - pass;
-  const avgFailDay = failCount > 0 ? avgFailDaySum / failCount : 0;
+  const avgFailDay = failCount > 0  avgFailDaySum / failCount : 0;
 
   return {
     passProb: pass / runs,

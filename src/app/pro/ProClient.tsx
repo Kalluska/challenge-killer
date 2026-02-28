@@ -48,22 +48,22 @@ function cleanNumberInput(raw: string) {
 
   // Strip leading zeros like 052 -> 52, but keep "0" and "0.x"
   const parts = s.split(".");
-  let intPart = parts[0] ?? "";
+  let intPart = parts[0]  "";
   const decPart = parts[1];
 
   // if user typed "." first, normalize to "0."
   if (intPart === "" && decPart !== undefined) intPart = "0";
 
   // strip leading zeros only if there is another digit after them
-  intPart = intPart.replace(/^0+(?=\d)/, "");
+  intPart = intPart.replace(/^0+(=\d)/, "");
   if (intPart === "") intPart = "0";
 
-  return decPart !== undefined ? `${intPart}.${decPart}` : intPart;
+  return decPart !== undefined  `${intPart}.${decPart}` : intPart;
 }
 
 function toNum(s: string, fallback: number) {
   const x = Number(s);
-  return Number.isFinite(x) ? x : fallback;
+  return Number.isFinite(x)  x : fallback;
 }
 
 /** Seeded RNG for stable sample chart */
@@ -162,7 +162,7 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
       for (let t = 0; t < tradesPerDay; t++) {
         const riskAmt = (equity * riskPerTradePct) / 100;
         const isWin = Math.random() < pWin;
-        equity += isWin ? riskAmt * rr : -riskAmt;
+        equity += isWin  riskAmt * rr : -riskAmt;
 
         if (equity <= maxDdEquity) breachedDd = true;
         if (equity <= dailyLossFloor) breachedDaily = true;
@@ -205,14 +205,14 @@ function runMonteCarlo(inputs: SimInputs, sims = 2500): SimResult {
       for (let k = 0; k < steps; k++) {
         const riskAmt = (e * riskPerTradePct) / 100;
         const isWin = rng() < pWin;
-        e += isWin ? riskAmt * rr : -riskAmt;
+        e += isWin  riskAmt * rr : -riskAmt;
         if (e < 1) e = 1;
         sampleEquity.push(e);
       }
     }
   }
 
-  const avgFailDay = failCount > 0 ? failDaySum / failCount : days;
+  const avgFailDay = failCount > 0  failDaySum / failCount : days;
 
   return {
     passProb: pass / sims,
@@ -236,10 +236,111 @@ export default function ProPage() {
   const [saveMsg, setSaveMsg] = useState<string>("");
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastOpen, setToastOpen] = useState(false);
+
+const handleSaveRun = async (inputs: any, outputs: any) => {
+  try {
+    const { data: userRes, error: userErr } = await supabase.auth.getUser();
+    if (userErr) {
+      setToastMsg(`Save failed: ${userErr.message}`);
+      setToastOpen(true);
+      return;
+    }
+    const user = userRes?.user;
+    if (!user) {
+      setToastMsg("Login required to save.");
+      setToastOpen(true);
+      return;
+    }
+
+    const payload = {
+      user_id: user.id,
+      inputs,
+      outputs,
+    };
+
+    const { error: insErr } = await supabase.from("runs").insert(payload);
+    if (insErr) {
+      console.error("SAVE ERROR:", insErr);
+      setToastMsg(`Save failed: ${insErr.message}`);
+      setToastOpen(true);
+      return;
+    }
+
+    setToastMsg("Run saved");
+    setToastOpen(true);
+  } catch (e: any) {
+    console.error("SAVE EXCEPTION:", e);
+    setToastMsg(`Save failed: ${e?.message ?? "Unknown error"}`);
+    setToastOpen(true);
+  }
+};
+    const { error: insErr } = await supabase.from("runs").insert(payload);
+    if (insErr) {
+      console.error("SAVE ERROR:", insErr);
+      setToastMsg(`Save failed: ${insErr.message}`);
+      setToastOpen(true);
+      return;
+    }
+
+    // Verify it REALLY exists (helps detect silent issues)
+    const { data: check, error: chkErr } = await supabase
+      .from("runs")
+      .select("id")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (chkErr) {
+      console.warn("SAVE VERIFY ERROR:", chkErr);
+      setToastMsg("Run saved (verify failed)");
+      setToastOpen(true);
+      return;
+    }
+
+    const lastId = (check as any).[0].id;
+    setToastMsg(lastId  `Run saved (${lastId})` : "Run saved");
+    setToastOpen(true);
+  } catch (e: any) {
+    console.error("SAVE EXCEPTION:", e);
+    setToastMsg(`Save failed: ${e.message  "Unknown error"}`);
+    setToastOpen(true);
+  }
+};
+    const { error: insErr } = await supabase.from("runs").insert(payload);
+    if (insErr) {
+      console.error("SAVE ERROR:", insErr);
+      setToastMsg(`Save failed: ${insErr.message}`);
+      setToastOpen(true);
+      return;
+    }
+
+    // Verify it REALLY exists (helps detect silent issues)
+    const { data: check, error: chkErr } = await supabase
+      .from("runs")
+      .select("id")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (chkErr) {
+      console.warn("SAVE VERIFY ERROR:", chkErr);
+      setToastMsg("Run saved (verify failed)");
+      setToastOpen(true);
+      return;
+    }
+
+    const lastId = (check as any).[0].id;
+    setToastMsg(lastId  `Run saved (${lastId})` : "Run saved");
+    setToastOpen(true);
+  } catch (e: any) {
+    console.error("SAVE EXCEPTION:", e);
+    setToastMsg(`Save failed: ${e.message  "Unknown error"}`);
+    setToastOpen(true);
+  }
+};
+
 async function saveProRun(inputs: any, outputs: any) {
     try {
       const { data } = await supabase.auth.getSession();
-      const u = data.session?.user;
+      const u = data.session.user;
       if (!u) return;
 
       await supabase.from("pro_runs").insert({
@@ -280,7 +381,7 @@ async function saveProRun(inputs: any, outputs: any) {
         .eq("id", runId)
         .single();
 
-      if (error || !data) return;            const inp = data.inputs ?? {};
+      if (error || !data) return;            const inp = data.inputs  {};
             // (no setter found for inp.account — skipped)
             // (no setter found for inp.target — skipped)
             // (no setter found for inp.dailyLoss — skipped)
@@ -310,7 +411,7 @@ useEffect(() => {
       setLoadingAccess(true);
 
       const { data } = await supabase.auth.getSession();
-      const email = data.session?.user?.email ?? null;
+      const email = data.session.user.email  null;
       setSessionEmail(email);
 
       const saved = typeof window !== "undefined" && localStorage.getItem(LS_KEY) === "1";
@@ -326,11 +427,11 @@ useEffect(() => {
           .select("email")
           .eq("email", email)
           .maybeSingle();
-        whitelist = Boolean(row?.email) && !error;
+        whitelist = Boolean(row.email) && !error;
       }
       setIsWhitelisted(whitelist);
 
-      const metaPro = Boolean((data.session?.user?.user_metadata as any)?.pro);
+      const metaPro = Boolean((data.session.user.user_metadata as any).pro);
 
       setUnlocked(Boolean(redirectUnlocked || whitelist || metaPro));
       setLoadingAccess(false);
@@ -414,17 +515,17 @@ setTimeout(() => setSaveMsg(""), 2500);
           <div className="flex gap-3">
             <a href="/" className="text-sm underline opacity-80 hover:opacity-100">Home</a>
             <a href="/calculator" className="text-sm underline opacity-80 hover:opacity-100">Free</a>
-            <a href={sessionEmail ? "/account" : "/login"} className="text-sm underline opacity-80 hover:opacity-100">
-              {sessionEmail ? "Account" : "Login"}
+            <a href={sessionEmail  "/account" : "/login"} className="text-sm underline opacity-80 hover:opacity-100">
+              {sessionEmail  "Account" : "Login"}
             </a>
           </div>
         </div>
 
-        {loadingAccess ? (
+        {loadingAccess  (
           <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
             <div className="text-sm opacity-70">Checking access…</div>
           </div>
-        ) : !unlocked ? (
+        ) : !unlocked  (
           <div className="mt-8 max-w-2xl rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
             <div className="text-xl font-extrabold">PRO is locked</div>
             <p className="mt-2 opacity-80">
@@ -439,7 +540,7 @@ setTimeout(() => setSaveMsg(""), 2500);
               </GlowButton>
             </div>
             <div className="mt-4 text-xs opacity-60">
-              Redirect after purchase: <span className="opacity-90">/pro?pro=1</span>
+              Redirect after purchase: <span className="opacity-90">/propro=1</span>
             </div>
           </div>
         ) : (
@@ -483,14 +584,14 @@ setTimeout(() => setSaveMsg(""), 2500);
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
                 <div className="text-sm opacity-70">Pass Probability</div>
                 <div className="mt-2 text-5xl font-extrabold">
-                  {result ? `${Math.round(result.passProb * 100)}%` : "…"}
+                  {result  `${Math.round(result.passProb * 100)}%` : "…"}
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
-                  <Mini title="Daily loss breach" value={result ? `${Math.round(result.dailyLossBreachProb * 100)}%` : "—"} />
-                  <Mini title="Max DD breach" value={result ? `${Math.round(result.maxDdBreachProb * 100)}%` : "—"} />
-                  <Mini title="Avg fail day" value={result ? `${result.avgFailDay.toFixed(1)}` : "—"} />
-                  <Mini title="Runs" value={result ? `${simCount}` : "—"} />
+                  <Mini title="Daily loss breach" value={result  `${Math.round(result.dailyLossBreachProb * 100)}%` : "—"} />
+                  <Mini title="Max DD breach" value={result  `${Math.round(result.maxDdBreachProb * 100)}%` : "—"} />
+                  <Mini title="Avg fail day" value={result  `${result.avgFailDay.toFixed(1)}` : "—"} />
+                  <Mini title="Runs" value={result  `${simCount}` : "—"} />
                 </div>
 
                 <div className="mt-4 text-xs opacity-60">
@@ -502,7 +603,7 @@ setTimeout(() => setSaveMsg(""), 2500);
                 <div className="text-sm opacity-70">Equity curve preview</div>
                 <div className="text-xs opacity-60 mt-1">One representative randomized path</div>
                 <div className="mt-4">
-                  <EquityChart values={result?.sampleEquity ?? [parsed.accountSize]} />
+                  <EquityChart values={result.sampleEquity  [parsed.accountSize]} />
                 </div>
               </div>
             </div>
@@ -517,11 +618,11 @@ setTimeout(() => setSaveMsg(""), 2500);
                     <div className="text-xs opacity-60 uppercase">Most common failure cause</div>
                     <div className="mt-2 text-lg font-extrabold">
                       {result.failCauseCounts.daily > result.failCauseCounts.dd
-                        ? "Daily loss rule"
+                         "Daily loss rule"
                         : "Max drawdown"}
                     </div>
                     <div className="mt-1 text-xs opacity-60">
-                      Daily: {result.failCauseCounts.daily} â€¢ DD: {result.failCauseCounts.dd}
+                      Daily: {result.failCauseCounts.daily} • DD: {result.failCauseCounts.dd}
                     </div>
                   </div>
 
@@ -561,8 +662,8 @@ setTimeout(() => setSaveMsg(""), 2500);
               </div>
             )}
 <div className="mt-6 text-xs opacity-60">
-              Logged in as: <span className="opacity-90">{sessionEmail ?? "not logged in"}</span> â€¢ Whitelist:{" "}
-              <span className="opacity-90">{isWhitelisted ? "YES" : "NO"}</span>
+              Logged in as: <span className="opacity-90">{sessionEmail  "not logged in"}</span> • Whitelist:{" "}
+              <span className="opacity-90">{isWhitelisted  "YES" : "NO"}</span>
             </div>
           </>
         )}
@@ -680,11 +781,11 @@ function EquityChart({ values }: { values: number[] }) {
     return Math.max(0, Math.min(values.length - 1, idx));
   }
 
-  const hoverPoint = hoverIdx === null ? null : points[hoverIdx];
+  const hoverPoint = hoverIdx === null  null : points[hoverIdx];
 
   // Tooltip positioning: clamp inside container + flip if near top
-  const xPctRaw = hoverPoint ? (hoverPoint.x / w) * 100 : 50;
-  const yPctRaw = hoverPoint ? (hoverPoint.y / h) * 100 : 50;
+  const xPctRaw = hoverPoint  (hoverPoint.x / w) * 100 : 50;
+  const yPctRaw = hoverPoint  (hoverPoint.y / h) * 100 : 50;
   const xPct = Math.max(6, Math.min(94, xPctRaw));
   const placeBelow = yPctRaw < 18; // if dot is near top, show tooltip below
 
@@ -700,14 +801,14 @@ function EquityChart({ values }: { values: number[] }) {
         }}
         onMouseLeave={() => setHoverIdx(null)}
         onTouchStart={(e) => {
-          const t = e.touches?.[0];
+          const t = e.touches.[0];
           if (!t) return;
           const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
           const idx = idxFromClientX(t.clientX, rect);
           setIdxSmooth(idx);
         }}
         onTouchMove={(e) => {
-          const t = e.touches?.[0];
+          const t = e.touches.[0];
           if (!t) return;
           const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
           const idx = idxFromClientX(t.clientX, rect);
@@ -746,8 +847,8 @@ function EquityChart({ values }: { values: number[] }) {
           className="pointer-events-none absolute z-10 rounded-xl border border-white/10 bg-black/85 px-3 py-2 text-xs backdrop-blur-xl"
           style={{
             left: `${xPct}%`,
-            top: placeBelow ? `${Math.min(92, yPctRaw + 6)}%` : `${Math.max(8, yPctRaw - 6)}%`,
-            transform: placeBelow ? "translate(-50%, 0%)" : "translate(-50%, -100%)",
+            top: placeBelow  `${Math.min(92, yPctRaw + 6)}%` : `${Math.max(8, yPctRaw - 6)}%`,
+            transform: placeBelow  "translate(-50%, 0%)" : "translate(-50%, -100%)",
             maxWidth: "240px",
             whiteSpace: "nowrap",
           }}

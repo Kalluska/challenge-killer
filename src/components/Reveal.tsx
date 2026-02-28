@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from "react";
 
 type RevealProps = {
   children: React.ReactNode;
-  className?: string;
-  delayMs?: number;      // small stagger
-  once?: boolean;        // reveal once (default true)
-  y?: number;            // translateY px (default 18)
-  threshold?: number;    // IO threshold (default 0.12)
+  className: string;
+  delayMs: number;      // small stagger
+  once: boolean;        // reveal once (default true)
+  y: number;            // translateY px (default 18)
+  threshold: number;    // IO threshold (default 0.12)
 };
 
 export default function Reveal({
@@ -50,11 +50,11 @@ export default function Reveal({
       ref={ref}
       className={[
         "transition-all duration-700 ease-out will-change-transform",
-        shown ? "opacity-100 translate-y-0" : "opacity-0",
+        shown  "opacity-100 translate-y-0" : "opacity-0",
         className,
       ].join(" ")}
       style={{
-        transform: shown ? "translateY(0px)" : `translateY(${y}px)`,
+        transform: shown  "translateY(0px)" : `translateY(${y}px)`,
         transitionDelay: `${delayMs}ms`,
       }}
     >

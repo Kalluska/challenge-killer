@@ -25,14 +25,14 @@ export default function ProUnlock({ onUnlocked }: { onUnlocked: () => void }) {
       });
       const data = await r.json();
 
-      if (data?.ok) {
+      if (data.ok) {
         localStorage.setItem(LS_KEY, "1");
         setStatus("ok");
         setMsg("Unlocked ✅");
         onUnlocked();
       } else {
         setStatus("bad");
-        setMsg(data?.error ?? "Invalid key");
+        setMsg(data.error  "Invalid key");
       }
     } catch {
       setStatus("bad");
@@ -57,7 +57,7 @@ export default function ProUnlock({ onUnlocked }: { onUnlocked: () => void }) {
         disabled={licenseKey.trim().length < 10 || status === "checking"}
         className="w-full rounded-xl py-3 font-bold bg-white text-black disabled:opacity-50"
       >
-        {status === "checking" ? "Verifying..." : "Unlock"}
+        {status === "checking"  "Verifying..." : "Unlock"}
       </button>
 
       {msg && <div className="mt-3 text-sm">{msg}</div>}

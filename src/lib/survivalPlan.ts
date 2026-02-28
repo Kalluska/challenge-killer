@@ -52,7 +52,7 @@ export function buildSurvivalPlan(inputs: SimInputs): Plan {
   }
 
   const notes: string[] = [];
-  const lossesToDaily = inputs.dailyLossPct > 0 && bestRisk > 0 ? Math.ceil(inputs.dailyLossPct / bestRisk) : 0;
+  const lossesToDaily = inputs.dailyLossPct > 0 && bestRisk > 0  Math.ceil(inputs.dailyLossPct / bestRisk) : 0;
   if (lossesToDaily > 0) notes.push(`At ${bestRisk.toFixed(1)}% risk, ~${lossesToDaily} losses can hit daily loss.`);
   notes.push("Lower trades/day reduces variance (most evaluation fails are variance + rule breaks).");
   notes.push("If you want faster pass odds, increase RR (not risk).");

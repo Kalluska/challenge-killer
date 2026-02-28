@@ -17,7 +17,7 @@ export default function ClaimClient() {
       try {
         const { data } = await supabase.auth.getSession();
         const session = data.session;
-        const userEmail = session?.user?.email?.toLowerCase() || "";
+        const userEmail = session.user.email.toLowerCase() || "";
 
         if (!session || !userEmail) {
           setState("need_login");
@@ -44,18 +44,18 @@ export default function ClaimClient() {
         });
 
         const j = await r.json().catch(() => ({}));
-        if (!r.ok || !j?.ok) {
-          throw new Error(j?.error || "Claim failed");
+        if (!r.ok || !j.ok) {
+          throw new Error(j.error || "Claim failed");
         }
 
         localStorage.setItem(LS_KEY, "1");
 
         setState("done");
         setMsg("PRO claimed. Redirecting…");
-        setTimeout(() => router.replace("/pro?claimed=1"), 600);
+        setTimeout(() => router.replace("/proclaimed=1"), 600);
       } catch (e: any) {
         setState("error");
-        setMsg(e?.message || "Claim failed");
+        setMsg(e.message || "Claim failed");
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
