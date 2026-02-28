@@ -13,24 +13,44 @@
 - Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 2.7s
-  Running TypeScript ...
-  Collecting page data using 7 workers ...
-  Generating static pages using 7 workers (0/10) ...
-  Generating static pages using 7 workers (2/10) 
-Error occurred prerendering page "/account". Read more: https://nextjs.org/docs/messages/prerender-error
-Error: supabaseUrl is required.
-    at <unknown> (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\challenge-killer_src_lib_supabase_ts_20a5d2b0._.js:37:43440)
-    at new ce (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\challenge-killer_src_lib_supabase_ts_20a5d2b0._.js:37:43691)
-    at module evaluation (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\challenge-killer_src_lib_supabase_ts_20a5d2b0._.js:37:48029)
-    at instantiateModule (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:740:9)
-    at getOrInstantiateModuleFromParent (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:763:12)
-    at Context.esmImport [as i] (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:228:20)
-    at module evaluation (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\challenge-killer_src_app_account_page_tsx_a61cb644._.js:1:73)
-    at instantiateModule (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:740:9)
-    at getOrInstantiateModuleFromParent (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:763:12)
-    at Context.commonJsRequire [as r] (C:\Users\kalle\challenge-killer\.next\server\chunks\ssr\[turbopack]_runtime.js:249:12) {
-  digest: '1747736851'
-}
-Export encountered an error on /account/page: /account, exiting the build.
-⨯ Next.js build worker exited with code: 1 and signal: null
+
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./challenge-killer/src/app/pro/history/HistoryClient.tsx:134:23
+Parsing ecmascript source code failed
+[0m [90m 132 |[39m               [33m<[39m[33m/[39m[33ma[39m[33m>[39m
+ [90m 133 |[39m               [33m<[39m[33mbutton[39m
+[31m[1m>[22m[39m[90m 134 |[39m                       [33m<[39m[33m/[39m[33mbutton[39m[33m>[39m
+ [90m     |[39m                       [31m[1m^[22m[39m
+ [90m 135 |[39m                     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 136 |[39m                   [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 137 |[39m[0m
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./challenge-killer/src/app/pro/history/HistoryClient.tsx
+    ./challenge-killer/src/app/pro/history/page.tsx
+
+
+./challenge-killer/src/app/pro/history/HistoryClient.tsx:134:24
+Parsing ecmascript source code failed
+[0m [90m 132 |[39m               [33m<[39m[33m/[39m[33ma[39m[33m>[39m
+ [90m 133 |[39m               [33m<[39m[33mbutton[39m
+[31m[1m>[22m[39m[90m 134 |[39m                       [33m<[39m[33m/[39m[33mbutton[39m[33m>[39m
+ [90m     |[39m                        [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 135 |[39m                     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 136 |[39m                   [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 137 |[39m[0m
+
+Unterminated regexp literal
+
+Import trace:
+  Server Component:
+    ./challenge-killer/src/app/pro/history/HistoryClient.tsx
+    ./challenge-killer/src/app/pro/history/page.tsx
+
+
+    at <unknown> (./challenge-killer/src/app/pro/history/HistoryClient.tsx:134:23)
+    at <unknown> (./challenge-killer/src/app/pro/history/HistoryClient.tsx:134:24)

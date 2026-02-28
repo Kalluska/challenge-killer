@@ -123,7 +123,14 @@ export default function HistoryClient() {
                           await navigator.clipboard.writeText(JSON.stringify(r.outputs, null, 2));
                         }}
                       >
-                        Copy outputs
+                        Copy outputs</button>
+              <a
+                href={`/pro?run=${r.id}`}
+                className="rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold hover:bg-white/15 transition"
+              >
+                Go to saved run
+              </a>
+              <button
                       </button>
                     </div>
                   </div>

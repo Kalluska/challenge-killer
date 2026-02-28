@@ -4,31 +4,31 @@ import { useEffect, useState } from "react";
 
 export default function Toast({
   message,
-  show,
+  open,
   durationMs = 1500,
-  onDone,
+  onClose,
 }: {
   message: string | null;
-  show: boolean;
+  open: boolean;
   durationMs?: number;
-  onDone?: () => void;
+  onClose?: () => void;
 }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!show || !message) return;
+    if (!open || !message) return;
     setVisible(true);
 
     const t1 = setTimeout(() => setVisible(false), durationMs);
-    const t2 = setTimeout(() => onDone?.(), durationMs + 250);
+    const t2 = setTimeout(() => onClose?.(), durationMs + 250);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [show, message, durationMs, onDone]);
+  }, [open, message, durationMs, onClose]);
 
-  if (!show || !message) return null;
+  if (!open || !message) return null;
 
   return (
     <div className="fixed left-1/2 bottom-6 z-[9999] -translate-x-1/2">
