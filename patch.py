@@ -1,4 +1,133 @@
-"use client";
+from pathlib import Path
+import re, sys
+
+ROOT = Path(".")
+PRO = ROOT / "src/app/pro/ProClient.tsx"
+HIST = ROOT / "src/app/pro/history/HistoryClient.tsx"
+
+def read(p: Path) -> str:
+    if not p.exists():
+        print(f"[ERR] Missing: {p}")
+        sys.exit(1)
+    return p.read_text(encoding="utf-8", errors="replace")
+
+def write(p: Path, s: str):
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(s, encoding="utf-8", newline="\n")
+
+def normalize_src():
+    repl = {
+        "â€¢": "|",
+        "•": "|",
+        "â„¢": "TM",
+        "™": "TM",
+        "â€“": "-",
+        "–": "-",
+        "â€”": "-",
+        "—": "-",
+        "Ã¤": "ä",
+        "Ã¶": "ö",
+        "Ã…": "Å",
+        "Ã„": "Ä",
+        "Ã–": "Ö",
+        "Â ": " ",
+        "Â€": "€",
+    }
+    changed = 0
+    for p in (ROOT / "src").rglob("*"):
+        if p.suffix.lower() not in [".ts", ".tsx", ".js", ".jsx", ".css"]:
+            continue
+        s = read(p)
+        orig = s
+        for a, b in repl.items():
+            s = s.replace(a, b)
+        if s != orig:
+            write(p, s)
+            changed += 1
+    print(f"[OK] Normalized text in {changed} files")
+
+def patch_proclient():
+    s = read(PRO)
+
+    if '"use client";' in s:
+        s = re.sub(r'^\s*"use client";\s*', "", s, flags=re.M)
+        s = '"use client";\n' + s.lstrip()
+
+    s = s.replace("Run a simulation first.", "")
+    s = s.replace(" • ", " | ").replace("•", "|").replace("â€¢", "|")
+
+    s = s.replace(" show={", " open={").replace(" onDone={", " onClose={")
+
+    save_body = r'''
+    // Robust save: try multiple column layouts.
+    try {
+      const u = await supabase.auth.getUser();
+      const email = u.data.user?.email ?? null;
+      const uid = u.data.user?.id ?? null;
+
+      const candidates: any[] = [];
+      if (email) candidates.push({ user_email: email, inputs, outputs });
+      if (email) candidates.push({ email, inputs, outputs });
+      if (uid) candidates.push({ user_id: uid, inputs, outputs });
+      if (uid) candidates.push({ uid, inputs, outputs });
+      candidates.push({ inputs, outputs });
+
+      let lastErr: any = null;
+      let insertedId: string | null = null;
+
+      for (const payload of candidates) {
+        const { data, error } = await supabase
+          .from("runs")
+          .insert(payload)
+          .select("id")
+          .single();
+
+        if (!error) {
+          insertedId = (data as any)?.id ?? null;
+          lastErr = null;
+          break;
+        }
+        lastErr = error;
+      }
+
+      if (lastErr) throw lastErr;
+
+      setToastMsg("Run saved");
+      setToastOpen(true);
+      return insertedId;
+    } catch (e: any) {
+      const msg = e?.message || JSON.stringify(e);
+      console.error("SAVE FAILED:", e);
+      setToastMsg("Save failed: " + msg);
+      setToastOpen(true);
+      return null;
+    }
+'''.strip("\n")
+
+    def replace_fn(m):
+        return m.group(1) + "\n" + save_body + "\n" + m.group(3)
+
+    s2 = re.sub(
+        r'(async\s+function\s+handleSaveRun\s*\([^)]*\)\s*\{)([\s\S]*?)(\n\})',
+        replace_fn,
+        s,
+        count=1
+    )
+    if s2 == s:
+        s2 = re.sub(
+            r'(const\s+handleSaveRun\s*=\s*async\s*\([^)]*\)\s*=>\s*\{)([\s\S]*?)(\n\};)',
+            lambda m: m.group(1) + "\n" + save_body + "\n" + m.group(3),
+            s,
+            count=1
+        )
+    if s2 == s:
+        s2 = s + "\n\nconst handleSaveRun = async (inputs: any, outputs: any) => {\n" + save_body + "\n};\n"
+
+    write(PRO, s2)
+    print("[OK] Patched ProClient")
+
+def write_historyclient():
+    code = r'''"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -127,3 +256,11 @@ export default function HistoryClient() {
     </div>
   );
 }
+'''
+    write(HIST, code)
+    print("[OK] Rewrote HistoryClient")
+
+normalize_src()
+patch_proclient()
+write_historyclient()
+print("[DONE]")

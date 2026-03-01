@@ -19,7 +19,7 @@ export default function Home() {
       <div className="mx-auto max-w-6xl px-6 py-12">
         {/* TOP BAR */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="font-extrabold tracking-tight">Challenge Killer™</div>
+          <div className="font-extrabold tracking-tight">Challenge KillerTM</div>
 
           <div className="flex gap-4">
             <a className="text-sm underline opacity-80 hover:opacity-100" href="/calculator">Free</a>
@@ -141,11 +141,11 @@ export default function Home() {
               </thead>
               <tbody className="text-sm">
                 <Row feature="Quick pass estimate" free="✓" pro="✓" />
-                <Row feature="Daily loss breach probability" free="—" pro="✓" />
-                <Row feature="Max drawdown breach probability" free="—" pro="✓" />
-                <Row feature="Failure heatmap (by day)" free="—" pro="✓" />
-                <Row feature="Common failure cause" free="—" pro="✓" />
-                <Row feature="Equity curve preview" free="—" pro="✓" />
+                <Row feature="Daily loss breach probability" free="-" pro="✓" />
+                <Row feature="Max drawdown breach probability" free="-" pro="✓" />
+                <Row feature="Failure heatmap (by day)" free="-" pro="✓" />
+                <Row feature="Common failure cause" free="-" pro="✓" />
+                <Row feature="Equity curve preview" free="-" pro="✓" />
               </tbody>
             </table>
           </div>
@@ -180,7 +180,7 @@ export default function Home() {
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
             <div className="font-bold">Is this financial advice</div>
             <div className="mt-2 text-sm opacity-80">
-              No. This is a statistical simulation tool. It models probability and variance — not signals.
+              No. This is a statistical simulation tool. It models probability and variance - not signals.
             </div>
           </div>
 
@@ -194,7 +194,7 @@ export default function Home() {
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
             <div className="font-bold">Do I need to be profitable</div>
             <div className="mt-2 text-sm opacity-80">
-              Not necessarily. The tool shows whether your current risk profile statistically survives — even with variance.
+              Not necessarily. The tool shows whether your current risk profile statistically survives - even with variance.
             </div>
           </div>
         </div>

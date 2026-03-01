@@ -1,3 +1,4 @@
+"use client";
 ﻿"use client";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
@@ -238,41 +239,50 @@ export default function ProPage() {
   const [toastOpen, setToastOpen] = useState(false);
 
 const handleSaveRun = async (inputs: any, outputs: any) => {
-  try {
-    const { data: userRes, error: userErr } = await supabase.auth.getUser();
-    if (userErr) {
-      setToastMsg(`Save failed: ${userErr.message}`);
+    // Robust save: try multiple column layouts.
+    try {
+      const u = await supabase.auth.getUser();
+      const email = u.data.user?.email ?? null;
+      const uid = u.data.user?.id ?? null;
+
+      const candidates: any[] = [];
+      if (email) candidates.push({ user_email: email, inputs, outputs });
+      if (email) candidates.push({ email, inputs, outputs });
+      if (uid) candidates.push({ user_id: uid, inputs, outputs });
+      if (uid) candidates.push({ uid, inputs, outputs });
+      candidates.push({ inputs, outputs });
+
+      let lastErr: any = null;
+      let insertedId: string | null = null;
+
+      for (const payload of candidates) {
+        const { data, error } = await supabase
+          .from("runs")
+          .insert(payload)
+          .select("id")
+          .single();
+
+        if (!error) {
+          insertedId = (data as any)?.id ?? null;
+          lastErr = null;
+          break;
+        }
+        lastErr = error;
+      }
+
+      if (lastErr) throw lastErr;
+
+      setToastMsg("Run saved");
       setToastOpen(true);
-      return;
-    }
-    const user = userRes?.user;
-    if (!user) {
-      setToastMsg("Login required to save.");
+      return insertedId;
+    } catch (e: any) {
+      const msg = e?.message || JSON.stringify(e);
+      console.error("SAVE FAILED:", e);
+      setToastMsg("Save failed: " + msg);
       setToastOpen(true);
-      return;
+      return null;
     }
 
-    const payload = {
-      user_id: user.id,
-      inputs,
-      outputs,
-    };
-
-    const { error: insErr } = await supabase.from("runs").insert(payload);
-    if (insErr) {
-      console.error("SAVE ERROR:", insErr);
-      setToastMsg(`Save failed: ${insErr.message}`);
-      setToastOpen(true);
-      return;
-    }
-
-    setToastMsg("Run saved");
-    setToastOpen(true);
-  } catch (e: any) {
-    console.error("SAVE EXCEPTION:", e);
-    setToastMsg(`Save failed: ${e?.message ?? "Unknown error"}`);
-    setToastOpen(true);
-  }
 };
     const { error: insErr } = await supabase.from("runs").insert(payload);
     if (insErr) {
@@ -382,15 +392,15 @@ async function saveProRun(inputs: any, outputs: any) {
         .single();
 
       if (error || !data) return;            const inp = data.inputs  {};
-            // (no setter found for inp.account — skipped)
-            // (no setter found for inp.target — skipped)
-            // (no setter found for inp.dailyLoss — skipped)
-            // (no setter found for inp.maxDd — skipped)
-            // (no setter found for inp.riskPerTrade — skipped)
-            // (no setter found for inp.winrate — skipped)
-            // (no setter found for inp.rr — skipped)
-            // (no setter found for inp.tradesPerDay — skipped)
-            // (no setter found for inp.days — skipped)
+            // (no setter found for inp.account - skipped)
+            // (no setter found for inp.target - skipped)
+            // (no setter found for inp.dailyLoss - skipped)
+            // (no setter found for inp.maxDd - skipped)
+            // (no setter found for inp.riskPerTrade - skipped)
+            // (no setter found for inp.winrate - skipped)
+            // (no setter found for inp.rr - skipped)
+            // (no setter found for inp.tradesPerDay - skipped)
+            // (no setter found for inp.days - skipped)
 
       setToast("ðŸ“Œ Loaded saved run");
       setTimeout(() => setToast(null), 1500);
@@ -507,7 +517,7 @@ setTimeout(() => setSaveMsg(""), 2500);
             </div>
           </div>
 
-          <h1 className="text-3xl font-extrabold">Challenge Killer™ PRO</h1>
+          <h1 className="text-3xl font-extrabold">Challenge KillerTM PRO</h1>
           <p className="opacity-70 mt-1">
             Monte Carlo risk engine (daily loss + drawdown) + equity curve preview.
           </p>
@@ -588,10 +598,10 @@ setTimeout(() => setSaveMsg(""), 2500);
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
-                  <Mini title="Daily loss breach" value={result  `${Math.round(result.dailyLossBreachProb * 100)}%` : "—"} />
-                  <Mini title="Max DD breach" value={result  `${Math.round(result.maxDdBreachProb * 100)}%` : "—"} />
-                  <Mini title="Avg fail day" value={result  `${result.avgFailDay.toFixed(1)}` : "—"} />
-                  <Mini title="Runs" value={result  `${simCount}` : "—"} />
+                  <Mini title="Daily loss breach" value={result  `${Math.round(result.dailyLossBreachProb * 100)}%` : "-"} />
+                  <Mini title="Max DD breach" value={result  `${Math.round(result.maxDdBreachProb * 100)}%` : "-"} />
+                  <Mini title="Avg fail day" value={result  `${result.avgFailDay.toFixed(1)}` : "-"} />
+                  <Mini title="Runs" value={result  `${simCount}` : "-"} />
                 </div>
 
                 <div className="mt-4 text-xs opacity-60">
@@ -622,7 +632,7 @@ setTimeout(() => setSaveMsg(""), 2500);
                         : "Max drawdown"}
                     </div>
                     <div className="mt-1 text-xs opacity-60">
-                      Daily: {result.failCauseCounts.daily} • DD: {result.failCauseCounts.dd}
+                      Daily: {result.failCauseCounts.daily} | DD: {result.failCauseCounts.dd}
                     </div>
                   </div>
 
@@ -662,7 +672,7 @@ setTimeout(() => setSaveMsg(""), 2500);
               </div>
             )}
 <div className="mt-6 text-xs opacity-60">
-              Logged in as: <span className="opacity-90">{sessionEmail  "not logged in"}</span> • Whitelist:{" "}
+              Logged in as: <span className="opacity-90">{sessionEmail  "not logged in"}</span> | Whitelist:{" "}
               <span className="opacity-90">{isWhitelisted  "YES" : "NO"}</span>
             </div>
           </>

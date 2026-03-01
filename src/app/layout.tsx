@@ -3,7 +3,7 @@ import GlowBackground from "@/components/GlowBackground";
 import PageTransition from "@/components/PageTransition";
 
 export const metadata = {
-  title: "Challenge Killer™",
+  title: "Challenge KillerTM",
   description: "Stop blowing prop firm accounts.",
 };
 
